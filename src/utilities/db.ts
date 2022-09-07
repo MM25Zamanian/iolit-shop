@@ -3,30 +3,30 @@ import {openDB} from 'idb';
 import type {locale} from '../config';
 import type {DBSchema} from 'idb';
 
-export interface product {
+export interface ProductType {
   id: number;
   image: string;
   isFavorite?: boolean;
   title: Record<locale['code'], string>;
   description: Record<locale['code'], string>;
   price: Record<locale['code'], number>;
-  category: category;
+  category: CategoryType;
 }
-export interface category {
+export interface CategoryType {
   name: string;
   label: Record<locale['code'], string>;
 }
-export interface cartItem extends product {
+export interface cartItem extends ProductType {
   count: number;
 }
 
 interface Database extends DBSchema {
   products: {
-    value: product;
+    value: ProductType;
     key: number;
   };
   categories: {
-    value: category;
+    value: CategoryType;
     key: number;
   };
   cart: {
@@ -43,7 +43,7 @@ export const dbPromise = openDB<Database>('iolit-db', 1, {
   },
 });
 
-export const updateProducts = async (data: product[]): Promise<void> => {
+export const updateProducts = async (data: ProductType[]): Promise<void> => {
   const db = await dbPromise;
 
   for await (const product of data) {
@@ -55,7 +55,7 @@ export const updateProducts = async (data: product[]): Promise<void> => {
     }
   }
 };
-export const updateCategories = async (data: product[]): Promise<void> => {
+export const updateCategories = async (data: ProductType[]): Promise<void> => {
   const db = await dbPromise;
   const categories = data
       .map((product) => product.category)

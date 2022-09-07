@@ -7,30 +7,22 @@ const translation: DefaultTranslation = {
 
   $price_unit: '﷼',
 
-  ok: 'تایید',
-  cancel: 'لغو',
+  // * Page titles
+  shop: 'فروشگاه',
+  cart: 'سبد خرید',
+  home: 'خانه',
+  account: 'حساب کاربری',
+  contact_us: 'ارتباط با ما',
+
+  // * Product categories
+  mens_t_shirts: 'تیشرت مردانه',
+  womens_t_shirts: 'تیشرت زنانه',
+  mens_outerwear: 'لباس بیرونی مردانه',
+  womens_outerwear: 'لباس بیرونی زنانه',
 
   developer_team: 'تیم توسعه دهنده',
   add_to_cart: 'اضافه کردن به سبد خرید',
-  shop: 'فروشگاه',
-  cart: 'سبد خرید',
-  settings: 'تنظیمات',
-  spy_game: 'بازی جاسوس',
-  theme_mode: 'مدل تم',
-  theme_color: 'رنگ تم',
-  dark: 'تاریک',
-  light: 'روشن',
-  language: 'زبان',
-  blue: 'آبی',
-  indigo: 'نیلی',
-  purple: 'بنفش',
-  pink: 'صورتی',
-  red: 'قرمز',
-  orange: 'نارنجی',
-  yellow: 'زرد',
-  green: 'سبز',
-  teal: 'سبز آبی',
-  cyan: 'فیروزه ای',
+
   mohammadmahdi_zamanian: 'محمدمهدی زمانیان',
   web_developer_project_maintainer: 'توسعه دهنده وب | نگه‌دارنده پروژه',
 

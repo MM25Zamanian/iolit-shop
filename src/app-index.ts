@@ -4,22 +4,13 @@ import {registerTranslation} from '@shoelace-style/localize/dist/index.js';
 import {css, html, nothing} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 
-import '@erbium/iconsax';
-import 'pwa-helper-components/pwa-install-button.js';
-
 import {AppElement} from './app-debt/app-element';
+import routes from './router/routes';
 import en from './translation/en';
 import fa from './translation/fa';
 import {dbPromise} from './utilities/db';
 import LocaleController from './utilities/locale-controller';
 import registerSW from './utilities/register-sw';
-import ThemeController from './utilities/theme-controller';
-
-import './pages/page-home';
-import './pages/page-product-list';
-import './pages/page-settings';
-import './pages/page-cart';
-import './pages/page-about';
 
 import type {RoutesConfig} from '@alwatr/router';
 import type {ListenerInterface} from '@alwatr/signal';
@@ -109,32 +100,16 @@ export class AppIndex extends AppElement {
   protected _serviceWorkerUpdate = new SignalInterface('sw-update');
   protected _cartSignal = new SignalInterface('cart');
   protected _localeController = new LocaleController();
-  protected _themeController = new ThemeController();
   protected _cartProductCount = 0;
   protected _activePage = 'home';
   protected _listenerList: Array<unknown> = [];
+  protected _hideTabBar = false;
 
   protected _routes: RoutesConfig = {
     // TODO: refactor route, we need to get active page!
     // TODO: ability to redirect!
     map: (route) => (this._activePage = route.sectionList[0]?.toString().trim() || 'home'),
-    list: {
-      home: {
-        render: () => html`<page-home class="ion-page"></page-home>`,
-      },
-      shop: {
-        render: () => html`<page-product-list class="ion-page" type="card"></page-product-list>`,
-      },
-      cart: {
-        render: () => html`<page-cart class="ion-page"></page-cart>`,
-      },
-      settings: {
-        render: () => html`<page-settings class="ion-page"></page-settings>`,
-      },
-      about: {
-        render: () => html`<page-about class="ion-page"></page-about>`,
-      },
-    },
+    list: routes,
   };
 
   override connectedCallback(): void {
@@ -164,8 +139,8 @@ export class AppIndex extends AppElement {
   }
   override render(): TemplateResult {
     return html`
-      ${this._renderHeaderTemplate()}
       <ion-content class="page-container"> ${router.outlet(this._routes)} </ion-content>
+      ${this._renderTabBar()}
     `;
   }
   override async firstUpdated(): Promise<void> {
@@ -176,33 +151,32 @@ export class AppIndex extends AppElement {
     this.requestUpdate('_cartProductCount', 0);
   }
 
-  protected _renderHeaderTemplate(): TemplateResult {
-    const bagde = this._cartProductCount ?
-      html`<ion-badge color="danger">${this._cartProductCount}</ion-badge>` :
-      nothing;
-    const title = <string | undefined>router.currentRoute.sectionList[0];
+  protected _renderTabBar(): TemplateResult | typeof nothing {
+    if (this._hideTabBar) return nothing;
 
-    return html`
-      <ion-header>
-        <ion-toolbar color="primary">
-          <ion-buttons slot="start">
-            <ion-button href="/shop">
-              <ion-icon slot="icon-only" name="bag-handle"></ion-icon>
-            </ion-button>
-            <ion-button href="/cart">
-              ${bagde}
-              <ion-icon slot="icon-only" name="cart"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-buttons slot="end">
-            <ion-button href="/settings">
-              <ion-icon slot="icon-only" name="settings"></ion-icon>
-            </ion-button>
-          </ion-buttons>
+    const navItemsTemplate = [];
 
-          <ion-title>${this._localize.term(title ?? 'home')}</ion-title>
-        </ion-toolbar>
-      </ion-header>
-    `;
+    for (const slug in routes) {
+      if (Object.prototype.hasOwnProperty.call(routes, slug)) {
+        const route = routes[slug];
+        const selected = this._activePage === slug;
+        console.log(route, selected);
+
+        navItemsTemplate.push(
+            html`
+            <ion-tab-button
+              layout=${selected ? 'icon-top' : 'label-hide'}
+              href=${router.makeUrl({sectionList: [slug]})}
+              ?selected=${selected}
+            >
+              <ion-label>${this._localize.term(route.title)}</ion-label>
+              <ion-icon name=${selected ? route.icon : route.icon + '-outline'}></ion-icon>
+            </ion-tab-button>
+          `,
+        );
+      }
+    }
+
+    return html`<ion-tab-bar>${navItemsTemplate}</ion-tab-bar>`;
   }
 }

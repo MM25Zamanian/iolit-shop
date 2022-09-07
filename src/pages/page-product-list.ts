@@ -1,15 +1,15 @@
 import {SignalInterface} from '@alwatr/signal';
 import {Task} from '@lit-labs/task';
-import {css, html, nothing} from 'lit';
+import {css, html} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 import {repeat} from 'lit/directives/repeat.js';
-import {when} from 'lit/directives/when.js';
 
 import {AppElement} from '../app-debt/app-element';
 import {dbPromise, updateCategories, updateProducts} from '../utilities/db';
 
-import type {locale} from '../config';
-import type {cartItem, product} from '../utilities/db';
+import '../components/p-roduct';
+
+import type {cartItem, ProductType} from '../utilities/db';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {TemplateResult, CSSResult} from 'lit';
 
@@ -77,9 +77,9 @@ export class PageProductList extends AppElement {
 
   protected _listenerList: Array<unknown> = [];
   protected _cartSignal = new SignalInterface('cart');
-  protected _data: product[] = [];
+  protected _data: ProductType[] = [];
   protected _cart: cartItem[] = [];
-  protected _dataTask = new Task(this, async (): Promise<product[]> => {
+  protected _dataTask = new Task(this, async (): Promise<ProductType[]> => {
     const db = await dbPromise;
     let data = await db.getAll('products');
 
@@ -128,7 +128,7 @@ export class PageProductList extends AppElement {
     this._dataTask.run();
   }
 
-  protected async _toggleFavorite(product: product, isFavorite: boolean): Promise<void> {
+  protected async _toggleFavorite(product: ProductType, isFavorite: boolean): Promise<void> {
     const db = await dbPromise;
 
     await db.put('products', {...product, isFavorite: isFavorite});
@@ -142,7 +142,7 @@ export class PageProductList extends AppElement {
 
     this.requestUpdate('_data');
   }
-  protected async _addToCart(product: product): Promise<void> {
+  protected async _addToCart(product: ProductType): Promise<void> {
     const db = await dbPromise;
     await db.put('cart', {...product, count: 1});
     this._cart.push({...product, count: 1});
@@ -150,7 +150,7 @@ export class PageProductList extends AppElement {
     this._cartSignal.dispatch(this._cart);
     this.requestUpdate('_cart');
   }
-  protected async _plusProductInCart(product: product): Promise<void> {
+  protected async _plusProductInCart(product: ProductType): Promise<void> {
     const db = await dbPromise;
     const productCart = this._cart.find((cartItem) => cartItem.id === product.id);
     if (productCart) {
@@ -168,7 +168,7 @@ export class PageProductList extends AppElement {
       this.requestUpdate('_cart');
     }
   }
-  protected async _minusProductInCart(product: product): Promise<void> {
+  protected async _minusProductInCart(product: ProductType): Promise<void> {
     const db = await dbPromise;
     const productCart = this._cart.find((cartItem) => cartItem.id === product.id);
     if (productCart) {
@@ -200,88 +200,12 @@ export class PageProductList extends AppElement {
   }
 
   protected _renderCardTemplate(): TemplateResult {
-    const listTemplate = repeat(
+    const productListTemplate = repeat(
         this._data,
         (product) => product.id,
-        (product) => {
-          const productInCart = this._cart.find((cartItem) => cartItem.id === product.id);
-          const title = product.title[<locale['code']> this._localize.lang()];
-          const price = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
-          const description = product.description[<locale['code']> this._localize.lang()];
-
-          return html`
-          <ion-card>
-            <div class="ion-card-image">
-              <img src=${product.image} />
-
-              <ion-fab vertical="bottom" horizontal="end" edge>
-                <ion-fab-button color="light" size="small">
-                  <ion-icon name="share-social-outline"></ion-icon>
-                </ion-fab-button>
-                ${this._renderToggleFavoriteButton(product)}
-                </ion-fab-button>
-              </ion-fab>
-            </div>
-            <ion-card-header>
-              <ion-card-title>${title}</ion-card-title>
-              <ion-card-subtitle>
-                ${price}
-                ${this._localize.term('$price_unit')}
-              </ion-card-subtitle>
-            </ion-card-header>
-            <ion-card-content>${description}</ion-card-content>
-            ${when(
-      productInCart,
-      () => this._renderProductCartController(product, productInCart),
-      () => html`
-                <ion-button
-                  class="buy-button"
-                  expand="full"
-                  @click=${async (): Promise<void> => await this._addToCart(product)}
-                >
-                  <ion-label>${this._localize.term('add_to_cart')}</ion-label>
-                  <ion-icon size="medium" name="add-outline" slot="end"></ion-icon>
-                </ion-button>
-              `,
-  )}
-          </ion-card>
-        `;
-        },
+        (product) => html` <p-roduct .info=${product}></p-roduct> `,
     );
 
-    return html` ${listTemplate} `;
-  }
-  protected _renderProductCartController(product: product, productCart?: cartItem): TemplateResult | typeof nothing {
-    if (!product || !productCart) return nothing;
-
-    return html`
-      <ion-toolbar color="medium">
-        <ion-buttons slot="start">
-          <ion-button @click=${async (): Promise<void> => await this._minusProductInCart(product)}>
-            <ion-icon slot="icon-only" name="${productCart.count > 1 ? 'remove-outline' : 'close-outline'}"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button @click=${async (): Promise<void> => await this._plusProductInCart(product)}>
-            <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-
-        <ion-title class="count">${productCart.count}</ion-title>
-      </ion-toolbar>
-    `;
-  }
-  protected _renderToggleFavoriteButton(product: product): TemplateResult {
-    return html`
-      <ion-fab-button
-        color="danger"
-        close-icon="heart"
-        size="small"
-        @click=${async (): Promise<void> => await this._toggleFavorite(product, !(product.isFavorite ?? false))}
-        ?activated=${product.isFavorite ?? false}
-      >
-        <ion-icon name="heart-outline"></ion-icon>
-      </ion-fab-button>
-    `;
+    return html`${productListTemplate}`;
   }
 }
