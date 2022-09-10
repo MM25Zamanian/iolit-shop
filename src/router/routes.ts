@@ -4,14 +4,20 @@ import {navigation} from '../config';
 
 import '../pages/page-home';
 import '../pages/page-product-list';
+import '../pages/page-product-detail';
 import '../pages/page-cart';
 import '../pages/page-about';
 
 const routes: navigation = {
-  shop: {
-    title: 'shop',
-    icon: 'pricetags',
-    render: () => html`<page-product-list class="ion-page" type="card"></page-product-list>`,
+  products: {
+    title: 'products',
+    icon: 'grid',
+    render: (route) => {
+      if (route.sectionList[1]) {
+        return html`<page-product-detail class="ion-page" pid="${route.sectionList[1]}"></page-product-detail>`;
+      }
+      return html`<page-product-list class="ion-page" type="card"></page-product-list>`;
+    },
   },
   cart: {
     title: 'cart',
