@@ -8,7 +8,7 @@ const translation: DefaultTranslation = {
   $price_unit: '﷼',
 
   // * Page titles
-  shop: 'فروشگاه',
+  products: 'محصولات',
   cart: 'سبد خرید',
   home: 'خانه',
   account: 'حساب کاربری',
@@ -22,6 +22,12 @@ const translation: DefaultTranslation = {
 
   developer_team: 'تیم توسعه دهنده',
   add_to_cart: 'اضافه کردن به سبد خرید',
+  share: 'اشتراک گذاری',
+  cancel: 'لغو',
+  description: 'توضیحات',
+  favorite_past: (title: string, isFavorite: boolean) =>
+    isFavorite ? `${title} به علاقه مندی ها اضافه شد` : `${title} از علاقه مندی ها حذف شد`,
+  favorite_reverse_verb: (isFavorite: boolean) => (isFavorite ? 'حذف از علاقه مندی ها' : 'افزودن به علاقه مندی ها'),
 
   mohammadmahdi_zamanian: 'محمدمهدی زمانیان',
   web_developer_project_maintainer: 'توسعه دهنده وب | نگه‌دارنده پروژه',
