@@ -42,25 +42,28 @@ export class Banner extends AppElement {
         border-radius: var(--border-radius, 4px);
       }
       .banner-image img {
-        min-width: 100%;
-        max-width: none;
-        width: auto;
+        position: absolute;
+        inset: 0 auto;
+        height: 100%;
+        max-width: unset;
 
-        min-height: 100%;
-        height: auto;
+        z-index: 2;
 
         object-fit: cover;
+        object-position: center;
       }
       .banner-title {
         position: absolute;
         background-color: #333;
         color: white;
-        font-weight: 400;
+        font-weight: var(--title-fw, 400);
         margin: auto;
         padding: 0.3em 1.2em;
         border-radius: 6px;
         font-size: var(--title-fs, 20px);
         user-select: none;
+        z-index: 3;
+        text-align: center;
       }
       @supports ((-webkit-backdrop-filter: blur(0)) or (backdrop-filter: blur(0))) {
         .banner-title {
