@@ -5,10 +5,10 @@ import {css, html, nothing} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 
 import {AppElement} from './app-debt/app-element';
+import {loadAppData} from './director';
 import routes from './router/routes';
 import en from './translation/en';
 import fa from './translation/fa';
-import {dbPromise} from './utilities/db';
 import LocaleController from './utilities/locale-controller';
 import registerSW from './utilities/register-sw';
 
@@ -117,6 +117,7 @@ export class AppIndex extends AppElement {
 
     registerTranslation(en, fa);
     registerSW();
+    loadAppData();
 
     this._listenerList.push(
         router.signal.addListener(
@@ -143,13 +144,6 @@ export class AppIndex extends AppElement {
       ${this._renderTabBar()}
     `;
   }
-  override async firstUpdated(): Promise<void> {
-    document.body.classList.remove('unresolved');
-
-    this._cartProductCount = await dbPromise.then((db) => db.getAll('cart')).then((cart) => cart.length);
-
-    this.requestUpdate('_cartProductCount', 0);
-  }
 
   protected _renderTabBar(): TemplateResult | typeof nothing {
     if (this._hideTabBar) return nothing;
@@ -160,7 +154,6 @@ export class AppIndex extends AppElement {
       if (Object.prototype.hasOwnProperty.call(routes, slug)) {
         const route = routes[slug];
         const selected = this._activePage === slug;
-        console.log(route, selected);
 
         navItemsTemplate.push(
             html`
