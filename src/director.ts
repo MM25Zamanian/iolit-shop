@@ -18,7 +18,7 @@ const modalPageSignal = new SignalInterface('modal-page');
 // const cartChangeSignal = new SignalInterface('cart-change');
 
 const loadProductList = async (): Promise<Record<string, ProductInterface>> => {
-  const productList = await loadDataCaching<Record<string, ProductInterface>>('/data/product-list-2.json');
+  const productList = await loadDataCaching<Record<string, ProductInterface>>('/data/product-list.json');
   directorLogger.logProperty('loadProductList', productList);
   productListSignal.dispatch(productList);
   return productList;
