@@ -78,7 +78,7 @@ export default {
     summary({showMinifiedSize: false}), // Print bundle summary
 
     copy({
-      patterns: ['images/**/*', 'data.json'],
+      patterns: ['images/**/*', 'data/**/*'],
     }),
 
     generateSW(workboxConfig, function render({swDest, count, size}) {
