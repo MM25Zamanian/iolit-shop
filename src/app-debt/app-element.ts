@@ -31,6 +31,9 @@ export function LoggableMixin<ClassType extends Constructor<LitElement>>(
       ionicTheming,
       ionicUtilities,
       css`
+        [unresolved] {
+          visibility: hidden !important;
+        }
         section {
           display: flex;
           flex-direction: column;
@@ -119,6 +122,7 @@ export function LoggableMixin<ClassType extends Constructor<LitElement>>(
     override connectedCallback(): void {
       this._logger.logMethod('connectedCallback');
       super.connectedCallback();
+      this.setAttribute('unresolved', '');
     }
 
     override disconnectedCallback(): void {

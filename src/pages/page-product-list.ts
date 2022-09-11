@@ -2,16 +2,22 @@ import {SignalInterface} from '@alwatr/signal';
 import {Task} from '@lit-labs/task';
 import {css, html} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
+import {query} from 'lit/decorators/query.js';
+import {state} from 'lit/decorators/state.js';
+import {map} from 'lit/directives/map.js';
+import {range} from 'lit/directives/range.js';
 import {repeat} from 'lit/directives/repeat.js';
 
 import {AppElement} from '../app-debt/app-element';
-import {dbPromise, updateCategories, updateProducts} from '../utilities/db';
 
 import '../components/p-roduct';
+import '../components/m-odal-filter';
 
-import type {cartItem, ProductType} from '../utilities/db';
+import type {ProductInterface} from '../types/product';
+import type {cartItem} from '../utilities/db';
 import type {ListenerInterface} from '@alwatr/signal';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {InfiniteScrollCustomEvent} from '@ionic/core';
+import type {TemplateResult, CSSResult, PropertyValues} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -41,78 +47,45 @@ export class PageProductList extends AppElement {
         -webkit-appearance: none;
       }
 
-      ion-card-title {
-        font-size: 22px;
-        font-weight: 500;
-        margin-top: 6px;
+      ion-grid {
+        --ion-grid-padding: 2vw;
       }
-
-      ion-card .ion-card-image {
-        display: flex;
-        position: relative;
-        background-color: #fff;
+      ion-col {
+        --ion-grid-column-padding: 2vw;
       }
-      ion-card .ion-card-image img {
-        max-width: 50%;
-        margin: 10px auto;
-        border: 0;
-      }
-
-      ion-label {
-        padding-left: 7px;
-      }
-
-      ion-fab {
-        display: flex;
-      }
-
-      .buy-button {
-        margin: 0;
-      }
-      .count {
-        text-align: center;
+      ion-col[hidden] {
+        display: none;
       }
     `,
   ];
 
+  @state() protected _data: Record<string, ProductInterface> = {};
+  @state() protected _scrollIndex = 6;
+  @query('ion-infinite-scroll') protected _infiniteScrollElement?: HTMLIonInfiniteScrollElement;
+
   protected _listenerList: Array<unknown> = [];
   protected _cartSignal = new SignalInterface('cart');
-  protected _data: ProductType[] = [];
+  protected _productListFilterSignal = new SignalInterface('product-list-filter');
+  protected _modalPageSignal = new SignalInterface('modal-page');
   protected _cart: cartItem[] = [];
-  protected _dataTask = new Task(this, async (): Promise<ProductType[]> => {
-    const db = await dbPromise;
-    let data = await db.getAll('products');
+  protected _dataTask = new Task(this, async (): Promise<Record<string, ProductInterface>> => {
+    const data = await this._productListFilterSignal.request({
+      category: this._productListFilterSignal.value?.filter.category ?? 'all',
+    });
 
-    this._cart = await db.getAll('cart');
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    this._data = data.data;
 
-    if (!data.length) {
-      // * If the database is empty, the information is fetched and then placed in the database
-
-      this._logger.logProperty('data', null);
-
-      data = await fetch(`/data.json`).then((response) => response.json());
-
-      await updateProducts(data);
-      await updateCategories(data);
-    } else {
-      // * Open a new Task for update products
-
-      setTimeout(async () => {
-        const data = await fetch(`/data.json`).then((response) => response.json());
-
-        await updateProducts(data);
-        await updateCategories(data);
-
-        this._logger.logMethod('database_auto_updated');
-      }, 1000);
-    }
-
-    this._data = data;
-    return data;
+    return data.data;
   });
 
   override connectedCallback(): void {
     super.connectedCallback();
+    this._listenerList.push(
+        this._productListFilterSignal.addListener((data) => {
+          this._data = data.data;
+        }),
+    );
     // this._listenerList.push(router.signal.addListener(() => this.requestUpdate()));
   }
   override disconnectedCallback(): void {
@@ -121,91 +94,97 @@ export class PageProductList extends AppElement {
   }
   override render(): TemplateResult {
     return html`
-      <ion-content fullscreen> ${this._dataTask.render({complete: () => this._renderCardTemplate()})} </ion-content>
+      <ion-header> ${this._renderToolbarTemplate()} </ion-header>
+      <ion-content fullscreen>
+        ${this._dataTask.render({
+    pending: () => this._renderSkeletonCardsTemplate(),
+    complete: () => this._renderCardsTemplate(),
+  })}
+      </ion-content>
     `;
   }
-  override firstUpdated(): void {
+  override firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties);
     this._dataTask.run();
   }
 
-  protected async _toggleFavorite(product: ProductType, isFavorite: boolean): Promise<void> {
-    const db = await dbPromise;
-
-    await db.put('products', {...product, isFavorite: isFavorite});
-
-    this._data = this._data.map((_product) => {
-      if (_product.id === product.id) {
-        _product.isFavorite = isFavorite;
-      }
-      return _product;
-    });
-
-    this.requestUpdate('_data');
-  }
-  protected async _addToCart(product: ProductType): Promise<void> {
-    const db = await dbPromise;
-    await db.put('cart', {...product, count: 1});
-    this._cart.push({...product, count: 1});
-
-    this._cartSignal.dispatch(this._cart);
-    this.requestUpdate('_cart');
-  }
-  protected async _plusProductInCart(product: ProductType): Promise<void> {
-    const db = await dbPromise;
-    const productCart = this._cart.find((cartItem) => cartItem.id === product.id);
-    if (productCart) {
-      productCart.count++;
-      await db.put('cart', productCart);
-
-      this._cart = this._cart.map((cartItem) => {
-        if (cartItem.id === productCart.id) {
-          return productCart;
-        }
-        return cartItem;
-      });
-
-      this._cartSignal.dispatch(this._cart);
-      this.requestUpdate('_cart');
-    }
-  }
-  protected async _minusProductInCart(product: ProductType): Promise<void> {
-    const db = await dbPromise;
-    const productCart = this._cart.find((cartItem) => cartItem.id === product.id);
-    if (productCart) {
-      if (productCart.count > 1) {
-        productCart.count--;
-        await db.put('cart', productCart);
-
-        this._cart = this._cart.map((cartItem) => {
-          if (cartItem.id === productCart.id) {
-            return productCart;
-          }
-          return cartItem;
-        });
-      } else {
-        await db.delete('cart', productCart.id);
-        this._cart = <cartItem[]> this._cart
-            .map((cartItem) => {
-              if (cartItem.id === productCart.id) {
-                return undefined;
-              }
-              return cartItem;
-            })
-            .filter((c) => c !== undefined);
-      }
-
-      this._cartSignal.dispatch(this._cart);
-      this.requestUpdate('_cart');
-    }
-  }
-
-  protected _renderCardTemplate(): TemplateResult {
+  protected _renderCardsTemplate(): TemplateResult {
     const productListTemplate = repeat(
-        this._data,
-        (product) => product.id,
-        (product) => html` <p-roduct .info=${product}></p-roduct> `,
+        Object.values(this._data),
+        (product) => product._id,
+        (product, index) => html`
+        <ion-col size="6" ?hidden=${this._scrollIndex <= index}>
+          <p-roduct .info=${product}></p-roduct>
+        </ion-col>
+      `,
     );
 
-    return html`${productListTemplate}`;
+    return html`
+      <ion-grid>
+        <ion-row>${productListTemplate}</ion-row>
+      </ion-grid>
+
+      <ion-infinite-scroll @ionInfinite=${this._infiniteScroll}>
+        <ion-infinite-scroll-content loading-spinner="circular"></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    `;
+  }
+  protected _renderSkeletonCardsTemplate(): TemplateResult {
+    const productListTemplate = map(
+        range(10),
+        () => html`
+        <ion-col size="6">
+          <p-roduct></p-roduct>
+        </ion-col>
+      `,
+    );
+
+    return html`
+      <ion-grid>
+        <ion-row>${productListTemplate}</ion-row>
+      </ion-grid>
+    `;
+  }
+  protected _renderToolbarTemplate(): TemplateResult {
+    return html`
+      <ion-toolbar>
+        <ion-buttons slot="primary">
+          <ion-button>
+            <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="start">
+          <ion-button @click=${this._openModalFilters}>
+            <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+
+        <ion-title>${this._localize.term('products')}</ion-title>
+      </ion-toolbar>
+    `;
+  }
+
+  protected _infiniteScroll(event: InfiniteScrollCustomEvent): void {
+    if (this._scrollIndex + 6 < Object.values(this._data).length) {
+      this._scrollIndex += 6;
+      event.target.complete();
+    } else if (Object.values(this._data).length - this._scrollIndex >= 1) {
+      this._scrollIndex += Object.values(this._data).length - this._scrollIndex;
+      event.target.complete();
+    } else {
+      event.target.disabled = true;
+    }
+    this._logger.logMethodFull(
+        '_infiniteScroll',
+        {event},
+        {
+          '_scrollIndex': this._scrollIndex,
+          '_data.length': Object.values(this._data).length,
+          'canUp': this._scrollIndex + 6 < Object.values(this._data).length,
+        },
+    );
+  }
+  protected _openModalFilters(): void {
+    this._modalPageSignal.request({component: 'm-odal-filter'});
   }
 }

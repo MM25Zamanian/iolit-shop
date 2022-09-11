@@ -56,9 +56,7 @@ export class PageCart extends AppElement {
     this._listenerList.forEach((listener) => (listener as ListenerInterface<keyof AlwatrSignals>).remove());
   }
   override render(): TemplateResult {
-    return html`
-      <ion-content fullscreen> ${this._renderMinimalCardTemplate()} </ion-content>
-    `;
+    return html` <ion-content fullscreen> ${this._renderMinimalCardTemplate()} </ion-content> `;
   }
   override firstUpdated(): void {
     this._dataTask.run();
@@ -118,7 +116,9 @@ export class PageCart extends AppElement {
         (product) => {
           const title = product.title[<locale['code']> this._localize.lang()];
           const priceFi = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
-          const priceTotal = this._localize.number(product.price[<locale['code']> this._localize.lang()] * product.count);
+          const _______priceTotal = this._localize.number(
+              product.price[<locale['code']> this._localize.lang()] * product.count,
+          );
 
           return html`
           <ion-card>
@@ -131,7 +131,7 @@ export class PageCart extends AppElement {
             <ion-item lines="none">
               <ion-label>${product.count}</ion-label>
               <ion-label>${priceFi}</ion-label>
-              <ion-label slot="end"> ${priceTotal} ${this._localize.term('$price_unit')} </ion-label>
+              <ion-label slot="end"> ${_______priceTotal} ${this._localize.term('$price_unit')} </ion-label>
             </ion-item>
             ${this._renderProductCartController(product)}
           </ion-card>

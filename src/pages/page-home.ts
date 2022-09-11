@@ -42,7 +42,8 @@ export class PageHome extends AppElement {
       }
       .banners .banners-group b-anner {
         flex: 1 1 0;
-        --title-fs: 15px;
+        --title-fs: 13px;
+        --title-fw: 100;
       }
     `,
   ];

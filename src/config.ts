@@ -12,8 +12,8 @@ export type navigation = Record<
 export type locale = {code: 'fa' | 'en'; dir: 'rtl' | 'ltr'; $code: string};
 
 export const locales: locale[] = [
-  {code: 'fa', dir: 'rtl', $code: 'فارسی'},
   {code: 'en', dir: 'ltr', $code: 'English'},
+  {code: 'fa', dir: 'rtl', $code: 'فارسی'},
 ];
 export const developerTeam: {name: string; description: string; link?: string; image: string}[] = [
   {
