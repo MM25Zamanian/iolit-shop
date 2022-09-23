@@ -7,7 +7,7 @@ export default {
   runtimeCaching: [
     {
       urlPattern: new RegExp('^(.*).(png|jpg|js|woff2|woff)$'),
-      handler: 'stale-while-revalidate',
+      handler: 'StaleWhileRevalidate',
       options: {
         cacheName: 'external-cache-image-font',
       },
@@ -16,7 +16,7 @@ export default {
   runtimeCaching: [
     {
       urlPattern: new RegExp('^/?(data/)(.*)(.json)$'),
-      handler: 'stale-while-revalidate',
+      handler: 'StaleWhileRevalidate',
       options: {
         cacheName: 'data',
       },
