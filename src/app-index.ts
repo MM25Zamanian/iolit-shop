@@ -98,7 +98,6 @@ export class AppIndex extends AppElement {
   }
 
   protected _serviceWorkerUpdate = new SignalInterface('sw-update');
-  protected _cartSignal = new SignalInterface('cart');
   protected _localeController = new LocaleController();
   protected _cartProductCount = 0;
   protected _activePage = 'home';
@@ -128,10 +127,6 @@ export class AppIndex extends AppElement {
             },
             {receivePrevious: true},
         ),
-        this._cartSignal.addListener((cart) => {
-          this._cartProductCount = cart.length;
-          this.requestUpdate('_cartProductCount');
-        }),
     );
   }
   override disconnectedCallback(): void {
