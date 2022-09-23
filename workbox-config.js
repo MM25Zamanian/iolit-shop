@@ -1,22 +1,22 @@
 export default {
   swDest: 'build/sw.js',
-  globPatterns: ['**/*.{html,css,js}'],
+  globPatterns: ['**/*.{html,css,js,svg}'],
   globDirectory: 'build/',
   clientsClaim: true,
   skipWaiting: true,
   runtimeCaching: [
     {
-      urlPattern: new RegExp('^(.*).(png|jpg|svg|js|woff2|woff)$'),
-      handler: 'Stale-while-revalidate',
+      urlPattern: new RegExp('^(.*).(png|jpg|js|woff2|woff)$'),
+      handler: 'stale-while-revalidate',
       options: {
-        cacheName: 'cache',
+        cacheName: 'external-cache-image-font',
       },
     },
   ],
   runtimeCaching: [
     {
       urlPattern: new RegExp('^/?(data/)(.*)(.json)$'),
-      handler: 'Stale-while-revalidate',
+      handler: 'stale-while-revalidate',
       options: {
         cacheName: 'data',
       },
