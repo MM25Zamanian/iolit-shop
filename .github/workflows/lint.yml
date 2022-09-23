@@ -50,7 +50,7 @@ jobs:
 
       - name: Run ESLint
         run: yarn run eslint .
-          --config .eslintrc.json
+          --config .eslintrc.yaml
           --ext .ts,.tsx
           --format @microsoft/eslint-formatter-sarif
           --output-file eslint-results.sarif
