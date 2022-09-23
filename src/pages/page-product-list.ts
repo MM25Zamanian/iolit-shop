@@ -14,10 +14,9 @@ import '../components/p-roduct';
 import '../components/m-odal-filter';
 
 import type {ProductInterface} from '../types/product';
-import type {cartItem} from '../utilities/db';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {InfiniteScrollCustomEvent} from '@ionic/core';
-import type {TemplateResult, CSSResult, PropertyValues} from 'lit';
+import type {TemplateResult, CSSResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -64,26 +63,29 @@ export class PageProductList extends AppElement {
   @query('ion-infinite-scroll') protected _infiniteScrollElement?: HTMLIonInfiniteScrollElement;
 
   protected _listenerList: Array<unknown> = [];
-  protected _cartSignal = new SignalInterface('cart');
   protected _productListFilterSignal = new SignalInterface('product-list-filter');
   protected _modalPageSignal = new SignalInterface('modal-page');
-  protected _cart: cartItem[] = [];
-  protected _dataTask = new Task(this, async (): Promise<Record<string, ProductInterface>> => {
-    const data = await this._productListFilterSignal.request({
-      category: this._productListFilterSignal.value?.filter.category ?? 'all',
-    });
+  protected _dataTask = new Task(
+      this,
+      async (): Promise<Record<string, ProductInterface>> => {
+        const data = await this._productListFilterSignal.request({
+          category: this._productListFilterSignal.value?.filter.category ?? 'all',
+        });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    this._data = data.data;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        this._data = data.data;
 
-    return data.data;
-  });
+        return data.data;
+      },
+      () => [],
+  );
 
   override connectedCallback(): void {
     super.connectedCallback();
     this._listenerList.push(
         this._productListFilterSignal.addListener((data) => {
           this._data = data.data;
+          this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
         }),
     );
     // this._listenerList.push(router.signal.addListener(() => this.requestUpdate()));
@@ -95,17 +97,13 @@ export class PageProductList extends AppElement {
   override render(): TemplateResult {
     return html`
       <ion-header> ${this._renderToolbarTemplate()} </ion-header>
-      <ion-content fullscreen>
+      <ion-content fullscreen .scrollY=${this._dataTask.status === 2}>
         ${this._dataTask.render({
     pending: () => this._renderSkeletonCardsTemplate(),
     complete: () => this._renderCardsTemplate(),
   })}
       </ion-content>
     `;
-  }
-  override firstUpdated(_changedProperties: PropertyValues): void {
-    super.firstUpdated(_changedProperties);
-    this._dataTask.run();
   }
 
   protected _renderCardsTemplate(): TemplateResult {
