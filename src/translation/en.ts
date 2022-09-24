@@ -25,6 +25,7 @@ const translation: DefaultTranslation = {
   share: 'Share',
   cancel: 'Cancel',
   description: 'Description',
+  features: 'Features',
   favorite_past: (title: string, isFavorite: boolean) =>
     isFavorite ? `${title} was added to favorites` : `${title} was removed from favorite`,
   favorite_reverse_verb: (isFavorite: boolean) => (isFavorite ? 'Remove from favorites' : 'Add to favorites'),

@@ -25,6 +25,7 @@ const translation: DefaultTranslation = {
   share: 'اشتراک گذاری',
   cancel: 'لغو',
   description: 'توضیحات',
+  features: 'ویژگی ها',
   favorite_past: (title: string, isFavorite: boolean) =>
     isFavorite ? `${title} به علاقه مندی ها اضافه شد` : `${title} از علاقه مندی ها حذف شد`,
   favorite_reverse_verb: (isFavorite: boolean) => (isFavorite ? 'حذف از علاقه مندی ها' : 'افزودن به علاقه مندی ها'),
