@@ -1,12 +1,12 @@
 {
-  "short_name": "Spy",
-  "name": "Spy Game",
-  "description": "A Spy Progressive Web Application",
+  "short_name": "IoLit",
+  "name": "IoLit Shop",
+  "description": "A IoLit Shop Progressive Web Application",
   "scope": "/",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#6301da",
-  "background_color": "#6301da",
+  "theme_color": "#6200ee",
+  "background_color": "#6200ee",
   "orientation": "portrait",
   "default_locale": "en",
   "icons": [
