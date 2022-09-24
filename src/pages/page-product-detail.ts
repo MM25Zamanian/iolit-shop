@@ -1,7 +1,7 @@
 import {router} from '@alwatr/router';
 import {SignalInterface} from '@alwatr/signal';
 import {IonicSafeString} from '@ionic/core';
-import {css, html, PropertyDeclaration} from 'lit';
+import {css, html, nothing, PropertyDeclaration} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 import {property} from 'lit/decorators/property.js';
 import {state} from 'lit/decorators/state.js';
@@ -11,6 +11,7 @@ import {when} from 'lit/directives/when.js';
 import {AppElement} from '../app-debt/app-element';
 
 import type {locale} from '../config';
+import type {MultiLanguageStringType} from '../types/language';
 import type {ProductInterface} from '../types/product';
 import type {TemplateResult, CSSResult} from 'lit';
 
@@ -82,7 +83,7 @@ export class PageProductDetail extends AppElement {
     `,
     css`
       ion-grid ion-row.product__footer h3 {
-        margin: 2vw;
+        margin: 4vw 2vw 2vw;
         color: var(--ion-color-step-800);
         font-size: 15px;
         font-weight: 900;
@@ -92,6 +93,18 @@ export class PageProductDetail extends AppElement {
         color: var(--ion-color-step-600);
         font-size: 14px;
         font-weight: 300;
+      }
+      ion-grid ion-row.product__footer ul {
+        margin: 0;
+      }
+      ion-grid ion-row.product__footer ul li:last-child {
+        margin-bottom: 3vw;
+      }
+      ion-grid ion-row.product__footer ul li {
+        margin: 2px 0;
+        color: var(--ion-color-step-700);
+        font-size: 13px;
+        font-weight: 400;
       }
     `,
   ];
@@ -163,7 +176,7 @@ export class PageProductDetail extends AppElement {
       <ion-grid fixed class="ion-no-padding">
         <ion-row class="product__image">
           <ion-col size="12">
-            <ion-thumbnail>
+            <ion-thumbnail @dblclick=${this._toggleFavorite}>
               <img src=${product.image.large} />
             </ion-thumbnail>
           </ion-col>
@@ -181,12 +194,7 @@ export class PageProductDetail extends AppElement {
           <ion-col size="12"> ${this._renderCartControllerTemplate()} </ion-col>
         </ion-row>
         <ion-row class="product__footer">
-          <ion-col size="12">
-            <h3>${this._localize.term('description')}</h3>
-          </ion-col>
-          <ion-col size="12">
-            ${product.description[localizeCode].split('\n').map((paragraph) => html`<p>${paragraph.trim()}</p>`)}
-          </ion-col>
+          ${this._renderProductDescription(product.description)} ${this._renderProductFeatures(product.features)}
         </ion-row>
       </ion-grid>
     `;
@@ -223,13 +231,42 @@ export class PageProductDetail extends AppElement {
       </ion-button>
     `;
   }
+  protected _renderProductDescription(description: MultiLanguageStringType): TemplateResult | typeof nothing {
+    const localizeCode = <locale['code']> this._localize.lang();
+    const descriptionText = description[localizeCode];
+
+    if (!descriptionText) return nothing;
+
+    return html`
+      <ion-col size="12">
+        <h3>${this._localize.term('description')}</h3>
+      </ion-col>
+      <ion-col size="12"> ${descriptionText.split('\n').map((paragraph) => html`<p>${paragraph.trim()}</p>`)} </ion-col>
+    `;
+  }
+  protected _renderProductFeatures(features: MultiLanguageStringType[]): TemplateResult | typeof nothing {
+    const localizeCode = <locale['code']> this._localize.lang();
+    const featuresText = features.map((feature) => feature[localizeCode]);
+
+    if (!featuresText.length || !featuresText[0]) return nothing;
+
+    return html`
+      <ion-col size="12">
+        <h3>${this._localize.term('features')}</h3>
+      </ion-col>
+      <ion-col size="12">
+        <ul>
+          ${featuresText.map((feature) => html`<li>${feature.trim()}</li>`)}
+        </ul>
+      </ion-col>
+    `;
+  }
 
   protected async _shareData(): Promise<void> {
     const localizeCode = <locale['code']> this._localize.lang();
 
     const data: ShareData = {
-      title: this._product?.name[localizeCode],
-      text: this._product?.description[localizeCode],
+      text: `\n\n\n ${this._product?.name[localizeCode]} \n\n\n`.trim(),
       url: window.location.href,
     };
 

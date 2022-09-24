@@ -68,11 +68,14 @@ export class PageProductList extends AppElement {
   protected _dataTask = new Task(
       this,
       async (): Promise<Record<string, ProductInterface>> => {
+        if (this._productListFilterSignal.value) {
+          this._data = this._productListFilterSignal.value.data;
+        }
+
         const data = await this._productListFilterSignal.request({
           category: this._productListFilterSignal.value?.filter.category ?? 'all',
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
         this._data = data.data;
 
         return data.data;
@@ -108,7 +111,7 @@ export class PageProductList extends AppElement {
 
   protected _renderCardsTemplate(): TemplateResult {
     const productListTemplate = repeat(
-        Object.values(this._data),
+        Object.values(this._data).filter((_product, index) => !(this._scrollIndex + 6 <= index)),
         (product) => product._id,
         (product, index) => html`
         <ion-col size="6" ?hidden=${this._scrollIndex <= index}>

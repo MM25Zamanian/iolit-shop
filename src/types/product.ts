@@ -5,6 +5,7 @@ export interface ProductInterface {
   _id: string;
   slug: string;
   name: MultiLanguageStringType;
+  features: MultiLanguageStringType[];
   description: MultiLanguageStringType;
   price: MultiLanguageNumberType;
   image: ResponsiveImageInterface;
