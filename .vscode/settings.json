@@ -27,5 +27,8 @@
     "src/**/*.js": true,
     "src/**/*.d.ts": true,
     "src/**/*.tsbuildinfo": true
-  }
+  },
+  "docwriter.style": "JSDoc",
+  "docwriter.progress.trackMethods": true,
+  "docwriter.progress.trackFunctions": true
 }
