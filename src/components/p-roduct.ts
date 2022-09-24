@@ -28,11 +28,22 @@ export class Product extends AppElement {
   static override styles = [
     ...(<CSSResult[]>AppElement.styles),
     css`
+      :host {
+        display: block;
+        height: 100%;
+      }
       ion-card.card-vertical {
         margin: 0;
+        height: 100%;
+      }
+      ion-card.card-vertical::part(native) {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
       }
       ion-card.card-vertical ion-card-header {
         padding: 16px 12px 0;
+        margin: 0 0 auto;
       }
       ion-card.card-vertical ion-card-header ion-card-title {
         font-size: 14px;
