@@ -1,3 +1,4 @@
+import {router} from '@alwatr/router';
 import {SignalInterface} from '@alwatr/signal';
 import {Task} from '@lit-labs/task';
 import {css, html, nothing} from 'lit';
@@ -10,7 +11,7 @@ import type {locale} from '../config';
 import type {CategoryInterface} from '../types/category';
 import type {ProductFilter} from '../types/product-filter';
 import type {RadioGroupCustomEvent} from '@ionic/core';
-import type {TemplateResult, CSSResult, PropertyValues} from 'lit';
+import type {TemplateResult, CSSResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -37,20 +38,28 @@ export class MOdalFilter extends AppElement {
   ];
 
   @state() protected _categoryList: Record<string, CategoryInterface> = {};
-  @state() protected _filters: ProductFilter = {category: 'all'};
+  @state() protected _filters: ProductFilter = {};
 
   protected _modalPageSignal = new SignalInterface('modal-page');
   protected _categoryListSignal = new SignalInterface('category-list');
   protected _productListFilterSignal = new SignalInterface('product-list-filter');
-  protected _dataTask = new Task(this, async (): Promise<Record<string, CategoryInterface>> => {
-    const data = await this._categoryListSignal.request(false);
+  protected _dataTask = new Task(
+      this,
+      async (): Promise<Record<string, CategoryInterface>> => {
+        const data = await this._categoryListSignal.request(false);
 
-    this._categoryList = data;
-    this._logger.logProperty('_categoryList', {data});
+        this._categoryList = data;
+        this._logger.logProperty('_categoryList', {data});
 
-    return data;
-  });
+        return data;
+      },
+      () => [],
+  );
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this._filters = <ProductFilter>router.currentRoute.queryParamList;
+  }
   override render(): TemplateResult {
     return html`
       <ion-header>
@@ -76,16 +85,6 @@ export class MOdalFilter extends AppElement {
         </ion-button>
       </ion-footer>
     `;
-  }
-  override async firstUpdated(_changedProperties: PropertyValues): Promise<void> {
-    super.firstUpdated(_changedProperties);
-    this._dataTask.run();
-
-    if (!this._productListFilterSignal.value?.filter) {
-      await this._productListFilterSignal.request({category: 'all'});
-    } else if (this._productListFilterSignal.value?.filter) {
-      this._filters = this._productListFilterSignal.value.filter;
-    }
   }
 
   protected _renderCategoryFilters(): TemplateResult | typeof nothing {
@@ -126,9 +125,19 @@ export class MOdalFilter extends AppElement {
     const category = <ProductFilter['category']>event.detail.value;
     this._logger.logMethodArgs('_filterCategoryChange', {category: category, event});
     this._filters = {...this._filters, category: category};
+    if (category === 'all') {
+      delete this._filters.category;
+    }
   }
   protected async _applyFilters(): Promise<void> {
-    await this._productListFilterSignal.request(this._filters);
+    router.signal.request({
+      pathname: router.makeUrl({
+        sectionList: ['products'],
+      }),
+      search: router.makeUrl({
+        queryParamList: this._filters,
+      }),
+    });
     this._closeModal();
   }
 

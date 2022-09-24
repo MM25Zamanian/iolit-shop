@@ -1,3 +1,4 @@
+import {router} from '@alwatr/router';
 import {SignalInterface} from '@alwatr/signal';
 import {Task} from '@lit-labs/task';
 import {css, html} from 'lit';
@@ -68,13 +69,7 @@ export class PageProductList extends AppElement {
   protected _dataTask = new Task(
       this,
       async (): Promise<Record<string, ProductInterface>> => {
-        if (this._productListFilterSignal.value) {
-          this._data = this._productListFilterSignal.value.data;
-        }
-
-        const data = await this._productListFilterSignal.request({
-          category: this._productListFilterSignal.value?.filter.category ?? 'all',
-        });
+        const data = await this._productListFilterSignal.request(router.currentRoute.queryParamList);
 
         this._data = data.data;
 
@@ -85,7 +80,16 @@ export class PageProductList extends AppElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
+
     this._listenerList.push(
+        router.signal.addListener(
+            (route) => {
+              if (route.sectionList[0] === 'products') {
+                this._dataTask.run();
+              }
+            },
+            {receivePrevious: true},
+        ),
         this._productListFilterSignal.addListener((data) => {
           this._data = data.data;
           this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
@@ -150,13 +154,14 @@ export class PageProductList extends AppElement {
     return html`
       <ion-toolbar>
         <ion-buttons slot="primary">
+          <ion-button @click=${this._openModalFilters}>
+            <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
+          </ion-button>
+          <ion-button>
+            <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
+          </ion-button>
           <ion-button>
             <ion-icon slot="icon-only" name="search-outline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-        <ion-buttons slot="start">
-          <ion-button @click=${this._openModalFilters}>
-            <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
 

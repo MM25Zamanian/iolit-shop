@@ -1,1 +1,3 @@
-export type ProductFilter = Record<'category', 'all' | string>;
+export type ProductFilter ={
+  category?: string;
+};

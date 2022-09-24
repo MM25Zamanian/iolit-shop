@@ -48,9 +48,9 @@ productListFilterSignal.setProvider(
       for (const id in data) {
         if (Object.prototype.hasOwnProperty.call(data, id)) {
           const product = data[id];
-          if (filterParam.category === 'all') {
+          if (!filterParam.category) {
             newData[id] = product;
-          } else if (product.categoryList.includes(filterParam.category)) {
+          } else if (filterParam.category && product.categoryList.includes(filterParam.category)) {
             newData[id] = product;
           }
         }

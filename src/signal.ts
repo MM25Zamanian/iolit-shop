@@ -22,7 +22,7 @@ declare global {
   }
   interface AlwatrRequestSignals {
     readonly 'product-list': boolean;
-    readonly 'product-list-filter': Record<'category', 'all' | string>;
+    readonly 'product-list-filter': ProductFilter;
     readonly 'category-list': boolean;
     readonly 'toast-message': ToastOptions;
     readonly 'action-sheet': ActionSheetOptions;

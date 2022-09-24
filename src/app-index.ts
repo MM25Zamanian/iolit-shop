@@ -3,6 +3,8 @@ import {SignalInterface} from '@alwatr/signal';
 import {registerTranslation} from '@shoelace-style/localize/dist/index.js';
 import {css, html, nothing} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
+import {ifDefined} from 'lit/directives/if-defined.js';
+import {when} from 'lit/directives/when.js';
 
 import {AppElement} from './app-debt/app-element';
 import {loadAppData} from './director';
@@ -150,18 +152,23 @@ export class AppIndex extends AppElement {
         const route = routes[slug];
         const selected = this._activePage === slug;
 
-        navItemsTemplate.push(
-            html`
-            <ion-tab-button
-              layout=${selected ? 'icon-top' : 'label-hide'}
-              href=${router.makeUrl({sectionList: [slug]})}
-              ?selected=${selected}
-            >
-              <ion-label>${this._localize.term(route.title)}</ion-label>
-              <ion-icon name=${selected ? route.icon : route.icon + '-outline'}></ion-icon>
-            </ion-tab-button>
-          `,
-        );
+        if (route.show_in_bar !== false) {
+          navItemsTemplate.push(
+              html`
+              <ion-tab-button
+                layout=${selected ? 'icon-top' : 'label-hide'}
+                href=${router.makeUrl({sectionList: [slug]})}
+                ?selected=${selected}
+              >
+                <ion-label>${this._localize.term(route.title)}</ion-label>
+                ${when(
+      route.icon,
+      () => html`<ion-icon name=${ifDefined(selected ? route.icon : route.icon + '-outline')}></ion-icon>`,
+  )}
+              </ion-tab-button>
+            `,
+          );
+        }
       }
     }
 
