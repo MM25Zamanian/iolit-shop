@@ -88,9 +88,15 @@ export class Product extends AppElement {
         min-height: 40vw;
       }
     `,
+    css`
+      ion-item ion-buttons {
+        margin: 0;
+      }
+    `,
   ];
 
   @property({type: Object}) info?: ProductInterface;
+  @property({reflect: true}) type: 'vertical-card' | 'item-card' = 'vertical-card';
   @property({type: Boolean, reflect: true}) favorite: boolean | 'pending' = false;
 
   protected _toastMessageSignal = new SignalInterface('toast-message');
@@ -98,6 +104,9 @@ export class Product extends AppElement {
   override render(): TemplateResult {
     if (!this.info) {
       return this._renderCardVerticalSkeleton();
+    }
+    if (this.type === 'item-card') {
+      return this._renderCardItem(this.info);
     }
     return this._renderCardVertical(this.info);
   }
@@ -132,17 +141,28 @@ export class Product extends AppElement {
               </ion-text>
             </ion-text>
           </div>
-          <ion-buttons>
-            <ion-button color="${this.favorite === true ? 'danger' : 'dark'}" @click=${this._toggleFavorite}>
-              ${when(
-      this.favorite === 'pending',
-      () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
-      () => html` <ion-icon slot="icon-only" name=${this.favorite ? 'heart' : 'heart-outline'}></ion-icon> `,
-  )}
-            </ion-button>
-          </ion-buttons>
+          <ion-buttons>${this._renderFavoriteButton()}</ion-buttons>
         </ion-row>
       </ion-card>
+    `;
+  }
+  protected _renderCardItem(product: ProductInterface): TemplateResult {
+    const title = product.name[<locale['code']> this._localize.lang()];
+    const price = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
+    const description = product.description[<locale['code']> this._localize.lang()];
+
+    return html`
+      <ion-item>
+        <ion-thumbnail slot="start">
+          <img alt=${title} src=${product.image.normal} />
+        </ion-thumbnail>
+        <ion-label>
+          <h3>${title}</h3>
+          <p>${description}</p>
+          <p>${price} ${this._localize.term('$price_unit')}</p>
+        </ion-label>
+        <ion-buttons slot="end"> ${this._renderFavoriteButton()} </ion-buttons>
+      </ion-item>
     `;
   }
   protected _renderCardVerticalSkeleton(): TemplateResult {
@@ -172,7 +192,23 @@ export class Product extends AppElement {
       </ion-card>
     `;
   }
+  protected _renderFavoriteButton(): TemplateResult {
+    return html`
+      <ion-button color="${this.favorite === true ? 'danger' : 'dark'}" @click=${this._toggleFavorite}>
+        ${when(
+      this.favorite === 'pending',
+      () => html` <ion-spinner slot="icon-only" duration="1000" color="primary"></ion-spinner> `,
+      () => html` <ion-icon slot="icon-only" name=${this.favorite ? 'heart' : 'heart-outline'}></ion-icon> `,
+  )}
+      </ion-button>
+    `;
+  }
 
+  /**
+   * It toggles the favorite state of the current item, and if the item is favorited, it shows a toast
+   * message
+   * @param {PointerEvent} event - PointerEvent - The event that triggered the function.
+   */
   protected async _toggleFavorite(event: PointerEvent): Promise<void> {
     event.preventDefault();
 

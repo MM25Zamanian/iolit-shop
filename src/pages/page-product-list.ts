@@ -13,6 +13,7 @@ import {AppElement} from '../app-debt/app-element';
 
 import '../components/p-roduct';
 import '../components/m-odal-filter';
+import '../components/m-odal-search';
 
 import type {ProductInterface} from '../types/product';
 import type {ListenerInterface} from '@alwatr/signal';
@@ -160,7 +161,7 @@ export class PageProductList extends AppElement {
           <ion-button>
             <ion-icon slot="icon-only" name="filter-outline"></ion-icon>
           </ion-button>
-          <ion-button>
+          <ion-button @click=${this._openModalSearch}>
             <ion-icon slot="icon-only" name="search-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -192,5 +193,8 @@ export class PageProductList extends AppElement {
   }
   protected _openModalFilters(): void {
     this._modalPageSignal.request({component: 'm-odal-filter'});
+  }
+  protected _openModalSearch(): void {
+    this._modalPageSignal.request({component: 'm-odal-search'});
   }
 }

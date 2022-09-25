@@ -46,7 +46,7 @@ export class MOdalFilter extends AppElement {
   protected _dataTask = new Task(
       this,
       async (): Promise<Record<string, CategoryInterface>> => {
-        const data = await this._categoryListSignal.request(false);
+        const data = await this._categoryListSignal.request({});
 
         this._categoryList = data;
         this._logger.logProperty('_categoryList', {data});
@@ -102,7 +102,7 @@ export class MOdalFilter extends AppElement {
       <ion-radio-group
         value=${this._productListFilterSignal.value?.filter.category ?? 'all'}
         name="category"
-        @ionChange=${this._filterCategoryChange}
+        @ionChange=${this._filterCategoryChanged}
       >
         <ion-list-header>
           <ion-label> By Categories: </ion-label>
@@ -121,7 +121,12 @@ export class MOdalFilter extends AppElement {
   protected _closeModal(): void {
     this._modalPageSignal.value?.dismiss();
   }
-  protected _filterCategoryChange(event: RadioGroupCustomEvent): void {
+  /**
+   * It takes the value of the radio group and sets the `category` property of the `_filters` object to
+   * that value
+   * @param {RadioGroupCustomEvent} event - RadioGroupCustomEvent
+   */
+  protected _filterCategoryChanged(event: RadioGroupCustomEvent): void {
     const category = <ProductFilter['category']>event.detail.value;
     this._logger.logMethodArgs('_filterCategoryChange', {category: category, event});
     this._filters = {...this._filters, category: category};
