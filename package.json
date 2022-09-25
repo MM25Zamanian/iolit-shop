@@ -14,7 +14,6 @@
     "f": "yarn format",
     "fl": "yarn format:eslint",
     "fp": "yarn format:prettier",
-    "t": "npm-run-all --sequential clean f l b",
     "lint": "npm-run-all --sequential lint:*",
     "lint:ts": "eslint \"**/*.ts\"",
     "build": "npm-run-all --sequential build:ts build:es",

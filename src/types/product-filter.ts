@@ -1,3 +1,3 @@
-export type ProductFilter ={
+export type ProductFilter = {
   category?: string;
 };
