@@ -1,0 +1,26 @@
+{
+  "banner-1": {
+    "banners": [
+      {
+        "categoryId": "category-1"
+      }
+    ]
+  },
+  "banner-2": {
+    "banners": [
+      {
+        "categoryId": "category-2"
+      },
+      {
+        "categoryId": "category-3"
+      }
+    ]
+  },
+  "banner-3": {
+    "banners": [
+      {
+        "categoryId": "category-4"
+      }
+    ]
+  }
+}

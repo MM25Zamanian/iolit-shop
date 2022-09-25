@@ -31,7 +31,7 @@ export class Banner extends AppElement {
         height: var(--height);
         box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 12px;
       }
-      .banner-image {
+      .banner-box {
         display: flex;
         position: relative;
         align-items: center;
@@ -41,16 +41,18 @@ export class Banner extends AppElement {
         overflow: hidden;
         border-radius: var(--border-radius, 4px);
       }
-      .banner-image img {
-        position: absolute;
-        inset: 0 auto;
+      .banner-box .banner-image {
+        display: flex;
+        width: 100%;
         height: 100%;
-        max-width: unset;
-
-        z-index: 2;
-
+      }
+      .banner-box .banner-image img {
+        max-inline-size: 100%;
+        min-width: 100%;
+        block-size: auto;
+        aspect-ratio: 16/9;
         object-fit: cover;
-        object-position: center;
+        object-position: top center;
       }
       .banner-title {
         position: absolute;
@@ -67,64 +69,48 @@ export class Banner extends AppElement {
       }
       @supports ((-webkit-backdrop-filter: blur(0)) or (backdrop-filter: blur(0))) {
         .banner-title {
-          backdrop-filter: saturate(2.5) brightness(70%) blur(20px);
+          backdrop-filter: saturate(2) brightness(50%) blur(1px);
           background-color: #0001;
         }
       }
     `,
   ];
 
+  @property({type: Boolean}) skeleton = false;
   @property() label = '';
   @property() src = '';
-  @property() href = '';
-  @property({type: Boolean, reflect: true}) loaded = false;
+  @property({type: Object}) image?: HTMLImageElement;
+  @property() href?: string;
 
   override render(): TemplateResult {
-    if (this.href.length) {
+    if (this.skeleton) {
       return html`
-        <a class="banner-image" href=${this.href}>
+        <div class="banner-box">
+          <div class="banner-image">
+            <ion-thumbnail style="--size:100%">
+              <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-thumbnail>
+          </div>
+        </div>
+      `;
+    }
+
+    const image = this.image ?? html`<img src=${this.src} alt=${this.label} />`;
+
+    if (this.href) {
+      return html`
+        <a class="banner-box" href=${this.href}>
           <h2 class="banner-title">${this.label}</h2>
-          ${this._renderImage()}
+          <div class="banner-image">${image}</div>
         </a>
       `;
     }
 
     return html`
-      <div class="banner-image">
+      <div class="banner-box">
         <h2 class="banner-title">${this.label}</h2>
-        ${this._renderImage()}
+        <div class="banner-image">${image}</div>
       </div>
     `;
-  }
-  protected _renderImage(): TemplateResult {
-    if (this.loaded) {
-      return html` <img src=${this.src} alt=${this.label} /> `;
-    }
-
-    if (document.readyState === 'complete') {
-      this._imageLoad();
-    } else {
-      document.addEventListener('readystatechange', () => {
-        if (document.readyState === 'complete') {
-          this._imageLoad();
-        }
-      });
-    }
-
-    return html` <img src="/images/banners/placeholder.png" alt=${this.label} /> `;
-  }
-
-  protected _imageLoad(): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.addEventListener('load', () => {
-        this.loaded = true;
-        resolve(image);
-      });
-      image.addEventListener('error', (error: ErrorEvent) => {
-        reject(error);
-      });
-      image.src = this.src;
-    });
   }
 }

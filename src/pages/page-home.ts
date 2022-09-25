@@ -1,11 +1,18 @@
+import {router} from '@alwatr/router';
+import {SignalInterface} from '@alwatr/signal';
+import {Task} from '@lit-labs/task';
 import {css, html, nothing} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
+import {ifDefined} from 'lit/directives/if-defined.js';
+import {map} from 'lit/directives/map.js';
 
 import {AppElement} from '../app-debt/app-element';
 
 import '../components/b-anner';
 import '../components/p-roduct';
 
+import type {locale} from '../config';
+import type {InfoBanner} from '../types/banner';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {TemplateResult, CSSResult} from 'lit';
 
@@ -34,7 +41,9 @@ export class PageHome extends AppElement {
         padding: 6px;
       }
       .banners b-anner {
-        --height: 40vw;
+        --height: 50vw;
+        --title-fs: 16px;
+        --title-fw: 300;
       }
       .banners .banners-group {
         display: flex;
@@ -44,37 +53,58 @@ export class PageHome extends AppElement {
         flex: 1 1 0;
         --title-fs: 13px;
         --title-fw: 100;
+        --height: 30vw;
       }
     `,
   ];
 
   protected _listenerList: Array<unknown> = [];
-  protected _banners = [
-    [
-      {
-        label: 'mens_t_shirts',
-        src: '/images/banners/mens_t-shirts.jpg',
-        href: '',
+  protected _categoryListSignal = new SignalInterface('category-list');
+  protected _bannerListSignal = new SignalInterface('banner-list');
+  protected _banners: Record<'banners', InfoBanner[]>[] = [];
+  protected _bannersTask = new Task(
+      this,
+      async (): Promise<typeof this._banners> => {
+        const bannerRowList = await this._bannerListSignal.request({});
+        const categoryList = await this._categoryListSignal.request({});
+
+        /**
+       * * replace all `CategoryBanner` to `InfoBanner`
+       */
+        for (const _id in bannerRowList) {
+          if (Object.prototype.hasOwnProperty.call(bannerRowList, _id)) {
+            const bannerRow = bannerRowList[_id];
+            bannerRow.banners = (
+            await Promise.all(
+                bannerRow.banners.map(async (banner): Promise<InfoBanner | undefined> => {
+                  if ('categoryId' in banner && categoryList[banner.categoryId]._id) {
+                    const category = categoryList[banner.categoryId];
+                    return {
+                      label: category.title[<locale['code']> this._localize.lang()],
+                      src: category.image,
+                      imageElement: await this._loadImage(category.image),
+                      href: router.makeUrl({
+                        sectionList: ['products'],
+                        queryParamList: {category: category.slug},
+                      }),
+                    };
+                  } else if ('src' in banner) {
+                    return banner;
+                  }
+                  return undefined;
+                }),
+            )
+          ).filter((banner) => banner !== undefined) as InfoBanner[];
+          }
+        }
+
+        this._banners = Object.values(<Record<string, Record<'banners', InfoBanner[]>>>bannerRowList);
+        this._logger.logProperty('_banners', {bannerRowList});
+
+        return this._banners;
       },
-      {
-        label: 'womens_t_shirts',
-        src: '/images/banners/womens_t-shirts.jpg',
-        href: '',
-      },
-    ],
-    [
-      {
-        label: 'womens_outerwear',
-        src: '/images/banners/womens_outerwear.jpg',
-        href: '',
-      },
-      {
-        label: 'mens_outerwear',
-        src: '/images/banners/mens_outerwear.jpg',
-        href: '',
-      },
-    ],
-  ];
+      () => [],
+  );
 
   override connectedCallback(): void {
     super.connectedCallback();
@@ -85,22 +115,64 @@ export class PageHome extends AppElement {
     this._listenerList.forEach((listener) => (listener as ListenerInterface<keyof AlwatrSignals>).remove());
   }
   override render(): TemplateResult {
-    return html` <ion-content> ${this._renderBanners()} </ion-content> `;
+    return html`
+      <ion-content>
+        ${this._bannersTask.render({
+    pending: () => this._renderBannersSkeleton(),
+    complete: () => this._renderBanners(),
+  })}
+      </ion-content>
+    `;
   }
 
+  protected _renderBannersSkeleton(): TemplateResult {
+    return html`
+      <div class="banners">
+        <b-anner skeleton></b-anner>
+        <div class="banners-group">
+          <b-anner skeleton></b-anner>
+          <b-anner skeleton></b-anner>
+        </div>
+        <div class="banners-group">
+          <b-anner skeleton></b-anner>
+          <b-anner skeleton></b-anner>
+        </div>
+        <div class="banners-group">
+          <b-anner skeleton></b-anner>
+          <b-anner skeleton></b-anner>
+        </div>
+        <b-anner skeleton></b-anner>
+      </div>
+    `;
+  }
   protected _renderBanners(): TemplateResult | typeof nothing {
-    const bannersTemplate = this._banners.map((banner) => {
-      if (Array.isArray(banner)) {
-        const _bannerTemplate = banner.map((banner) => this._renderBanner(banner));
-        return html`<div class="banners-group">${_bannerTemplate}</div>`;
+    const bannerRowsTemplate = this._banners.map((bannerRow) => {
+      if (bannerRow.banners.length === 1) {
+        return this._renderBanner(bannerRow.banners[0]);
       }
 
-      return this._renderBanner(banner);
+      return html` <div class="banners-group">${map(bannerRow.banners, (banner) => this._renderBanner(banner))}</div> `;
     });
 
-    return html` <div class="banners">${bannersTemplate}</div> `;
+    return html` <div class="banners">${bannerRowsTemplate}</div> `;
   }
-  protected _renderBanner(banner: {label: string; src: string; href: string}): TemplateResult {
-    return html`<b-anner label=${this._localize.term(banner.label)} src=${banner.src} href=${banner.href}></b-anner>`;
+  protected _renderBanner(banner: InfoBanner): TemplateResult {
+    return html`
+      <b-anner
+        label=${banner.label}
+        src=${banner.src}
+        href=${ifDefined(banner.href)}
+        .image=${banner.imageElement}
+      ></b-anner>
+    `;
+  }
+
+  protected async _loadImage(source: string): Promise<HTMLImageElement> {
+    return await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.addEventListener('load', () => resolve(image));
+      image.addEventListener('error', reject);
+      image.src = source;
+    });
   }
 }
