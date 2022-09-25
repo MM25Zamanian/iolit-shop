@@ -9,6 +9,7 @@ import {SignalInterface} from '@alwatr/signal';
 export default async function registerSW(): Promise<void> {
   const logger = createLogger('register-sw');
   const signal = new SignalInterface('sw-update');
+  const toastSignal = new SignalInterface('toast-message');
 
   if ('serviceWorker' in navigator) {
     return await navigator.serviceWorker
@@ -16,10 +17,18 @@ export default async function registerSW(): Promise<void> {
         .then((registration) => {
           logger.logMethodArgs('then', {registration: registration});
 
+          const update = (): Promise<void> =>
+            registration.update().then(() => {
+              toastSignal.request({
+                message: 'Application Successfully Updated',
+              });
+            });
+
           registration.addEventListener('updatefound', () => {
             logger.logMethod('updatefound');
+            update();
           });
-          signal.addListener(() => registration.update());
+          signal.addListener(() => update());
         })
         .catch((error) => logger.error('error', '500', error));
   }
