@@ -1,0 +1,32 @@
+name: Format
+on:
+  pull_request:
+    branches:
+      - main
+      - next
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Format With [Prettier]
+        run: yarn fp
+
+      - name: Format With [EsLint]
+        run: yarn fl
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'lint(prettier): fromat code'
+          branch: ${{ github.head_ref }}
