@@ -1,5 +1,7 @@
 import {createLogger} from '@alwatr/logger';
+import {Components as _} from '@ionic/core/dist/types/components';
 import {LocalizeController} from '@shoelace-style/localize/dist/index.js';
+import {Components as __} from 'ionicons/dist/types/components';
 import {css, LitElement} from 'lit';
 
 import ionicReset from '../stylesheets/ionic.reset';
@@ -9,6 +11,8 @@ import reset from '../stylesheets/reset';
 
 import type {AlwatrLogger} from '@alwatr/logger/type';
 import type {PropertyValues, CSSResult} from 'lit';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
 type Constructor<ClassType = {}> = new (...args: any[]) => ClassType;
