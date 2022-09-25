@@ -33,5 +33,12 @@ export default {
         },
       },
     },
+    {
+      urlPattern: new RegExp('(.*)(.js)'),
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'ionic-js',
+      },
+    },
   ],
 };
