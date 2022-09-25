@@ -5,6 +5,12 @@ on:
       - main
       - next
 
+  push:
+    branches:
+      - next
+      - main
+      - release/*
+
 jobs:
   format:
     runs-on: ubuntu-latest
