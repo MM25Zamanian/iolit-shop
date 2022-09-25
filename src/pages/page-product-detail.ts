@@ -131,7 +131,7 @@ export class PageProductDetail extends AppElement {
     super.requestUpdate(name, oldValue, options);
 
     if (name === 'pid' && this.pid) {
-      this._productListSignal.request(false).then((products) => {
+      this._productListSignal.request({}).then((products) => {
         if (this.pid) {
           this._product = products[this.pid];
           this.requestUpdate('_product');
