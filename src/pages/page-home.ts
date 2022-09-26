@@ -9,10 +9,12 @@ import {map} from 'lit/directives/map.js';
 import {AppElement} from '../app-debt/app-element';
 
 import '../components/b-anner';
+import '../components/s-croller';
 import '../components/p-roduct';
 
 import type {locale} from '../config';
 import type {InfoBanner} from '../types/banner';
+import type {ProductInterface} from '../types/product';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {TemplateResult, CSSResult} from 'lit';
 
@@ -38,7 +40,7 @@ export class PageHome extends AppElement {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        padding: 6px;
+        padding: 6px 6px 12px;
       }
       .banners b-anner {
         --height: 50vw;
@@ -60,50 +62,83 @@ export class PageHome extends AppElement {
 
   protected _listenerList: Array<unknown> = [];
   protected _categoryListSignal = new SignalInterface('category-list');
+  protected _productListSignal = new SignalInterface('product-list');
   protected _bannerListSignal = new SignalInterface('banner-list');
   protected _banners: Record<'banners', InfoBanner[]>[] = [];
+  protected _productsByCategories: Record<string, ProductInterface[]> = {};
   protected _bannersTask = new Task(
-      this,
-      async (): Promise<typeof this._banners> => {
-        const bannerRowList = await this._bannerListSignal.request({});
-        const categoryList = await this._categoryListSignal.request({});
+    this,
+    async (): Promise<typeof this._banners> => {
+      const bannerRowList = await this._bannerListSignal.request({});
+      const categoryList = await this._categoryListSignal.request({});
 
-        /**
+      /**
        * * replace all `CategoryBanner` to `InfoBanner`
        */
-        for (const _id in bannerRowList) {
-          if (Object.prototype.hasOwnProperty.call(bannerRowList, _id)) {
-            const bannerRow = bannerRowList[_id];
-            bannerRow.banners = (
+      for (const _id in bannerRowList) {
+        if (Object.prototype.hasOwnProperty.call(bannerRowList, _id)) {
+          const bannerRow = bannerRowList[_id];
+          bannerRow.banners = (
             await Promise.all(
-                bannerRow.banners.map(async (banner): Promise<InfoBanner | undefined> => {
-                  if ('categoryId' in banner && categoryList[banner.categoryId]._id) {
-                    const category = categoryList[banner.categoryId];
-                    return {
-                      label: category.title[<locale['code']> this._localize.lang()],
-                      src: category.image,
-                      imageElement: await this._loadImage(category.image),
-                      href: router.makeUrl({
-                        sectionList: ['products'],
-                        queryParamList: {category: category.slug},
-                      }),
-                    };
-                  } else if ('src' in banner) {
-                    return banner;
-                  }
-                  return undefined;
-                }),
+              bannerRow.banners.map(async (banner): Promise<InfoBanner | undefined> => {
+                if ('categoryId' in banner && categoryList[banner.categoryId]._id) {
+                  const category = categoryList[banner.categoryId];
+                  return {
+                    label: category.title[<locale['code']>this._localize.lang()],
+                    src: category.image,
+                    imageElement: await this._loadImage(category.image),
+                    href: router.makeUrl({
+                      sectionList: ['products'],
+                      queryParamList: {category: category.slug},
+                    }),
+                  };
+                } else if ('src' in banner) {
+                  return banner;
+                }
+                return undefined;
+              })
             )
           ).filter((banner) => banner !== undefined) as InfoBanner[];
+        }
+      }
+
+      this._banners = Object.values(<Record<string, Record<'banners', InfoBanner[]>>>bannerRowList);
+      this._logger.logProperty('_banners', {bannerRowList});
+
+      return this._banners;
+    },
+    () => []
+  );
+  protected _productsTask = new Task(
+    this,
+    async (): Promise<Record<string, ProductInterface>> => {
+      const products = await this._productListSignal.request({});
+      const categories = await this._categoryListSignal.request({});
+      const productsByCategories: Record<string, ProductInterface[]> = {};
+
+      await this._bannersTask.taskComplete;
+
+      for (const product of Object.values(products)) {
+        for (const productCategorySlug of product.categoryList) {
+          const category = Object.values(categories).find((category) => category.slug === productCategorySlug);
+
+          if (category) {
+            const localizeCode = <locale['code']>this._localize.lang();
+
+            productsByCategories[category.title[localizeCode]] = [
+              ...(productsByCategories[category.title[localizeCode]] ?? []),
+              product,
+            ];
           }
         }
+      }
 
-        this._banners = Object.values(<Record<string, Record<'banners', InfoBanner[]>>>bannerRowList);
-        this._logger.logProperty('_banners', {bannerRowList});
+      this._productsByCategories = productsByCategories;
+      this._logger.logProperty('_products', {products, productsByCategories});
 
-        return this._banners;
-      },
-      () => [],
+      return products;
+    },
+    () => []
   );
 
   override connectedCallback(): void {
@@ -118,9 +153,12 @@ export class PageHome extends AppElement {
     return html`
       <ion-content>
         ${this._bannersTask.render({
-    pending: () => this._renderBannersSkeleton(),
-    complete: () => this._renderBanners(),
-  })}
+          pending: () => this._renderBannersSkeleton(),
+          complete: () => this._renderBanners(),
+        })}
+        ${this._productsTask.render({
+          complete: () => this._renderProductScrollers(),
+        })}
       </ion-content>
     `;
   }
@@ -129,10 +167,6 @@ export class PageHome extends AppElement {
     return html`
       <div class="banners">
         <b-anner skeleton></b-anner>
-        <div class="banners-group">
-          <b-anner skeleton></b-anner>
-          <b-anner skeleton></b-anner>
-        </div>
         <div class="banners-group">
           <b-anner skeleton></b-anner>
           <b-anner skeleton></b-anner>
@@ -165,6 +199,25 @@ export class PageHome extends AppElement {
         .image=${banner.imageElement}
       ></b-anner>
     `;
+  }
+  protected _renderProductScrollers(): TemplateResult {
+    const cardScrollerTemplates = Object.entries(this._productsByCategories)
+      .slice(0, 2)
+      .map(([category, products]) => {
+        const productCardTemplates = products
+          .slice(0, 4)
+          .map((product) => html` <p-roduct .info=${product}></p-roduct> `);
+
+        return html`
+          <ion-item lines="none">
+            <ion-label slot="start">${category}</ion-label>
+            <ion-button fill="clear" slot="end"> More </ion-button>
+          </ion-item>
+          <s-croller> ${productCardTemplates} </s-croller>
+        `;
+      });
+
+    return html`${cardScrollerTemplates}`;
   }
 
   protected async _loadImage(source: string): Promise<HTMLImageElement> {
