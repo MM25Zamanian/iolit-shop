@@ -6,14 +6,24 @@ import {locales} from '../config';
 
 import type {locale} from '../config';
 
+/**
+ * It updates the language and direction of the HTML element
+ */
 class LocaleController {
   html?: HTMLElement;
   protected _logger = createLogger('controller/locale');
 
+  /**
+   * `update()` is a function that updates the `time` property of the `Clock` class
+   */
   constructor() {
     this.update();
   }
 
+  /**
+   * If the locale is not set, set it to the first locale in the list of locales
+   * @returns The locale object
+   */
   get locale(): locale {
     const localeString = window.localStorage.getItem('i18nLocale');
 
@@ -24,10 +34,18 @@ class LocaleController {
 
     return <locale>JSON.parse(localeString);
   }
+  /**
+   * It takes the locale object, converts it to a string, and stores it in the browser's local storage
+   * @param {locale} _locale - The locale object that you want to set.
+   */
   set locale(_locale: locale) {
     window.localStorage.setItem('i18nLocale', JSON.stringify(_locale));
   }
 
+  /**
+   * It updates the language and direction of the HTML element
+   * @returns the value of the variable isChanged.
+   */
   update(): void {
     const HTMLElement = document.querySelector('html');
 

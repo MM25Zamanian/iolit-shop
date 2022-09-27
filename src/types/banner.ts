@@ -1,6 +1,9 @@
 export interface BannerRowInterface {
   banners: Banner[];
 }
+export interface InfoBannerRowInterface {
+  banners: InfoBanner[];
+}
 
 export type Banner = InfoBanner | CategoryBanner;
 

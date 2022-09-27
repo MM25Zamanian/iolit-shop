@@ -1,0 +1,91 @@
+{
+  "banner-1": {
+    "type": "banner",
+    "data": {
+      "banner-1": {
+        "banners": [
+          {
+            "categoryId": "category-4"
+          }
+        ]
+      },
+      "banner-2": {
+        "banners": [
+          {
+            "categoryId": "category-2"
+          },
+          {
+            "categoryId": "category-3"
+          }
+        ]
+      }
+    }
+  },
+  "scroller-1": {
+    "type": "scroller",
+    "data": {
+      "title": {
+        "en": "Ladies Outerwear",
+        "fa": ""
+      },
+      "hreh": "",
+      "productIdList": ["product-1", "product-2", "product-3", "product-4"]
+    }
+  },
+  "banner-2": {
+    "type": "banner",
+    "data": {
+      "banner-1": {
+        "banners": [
+          {
+            "categoryId": "category-1"
+          },
+          {
+            "categoryId": "category-2"
+          }
+        ]
+      },
+      "banner-2": {
+        "banners": [
+          {
+            "categoryId": "category-3"
+          },
+          {
+            "categoryId": "category-4"
+          }
+        ]
+      }
+    }
+  },
+  "scroller-2": {
+    "type": "scroller",
+    "data": {
+      "title": {
+        "en": "Mens T-Shirts",
+        "fa": ""
+      },
+      "hreh": "",
+      "productIdList": [
+        "product-42",
+        "product-43",
+        "product-44",
+        "product-45",
+        "product-46",
+        "product-47",
+        "product-48",
+        "product-49",
+        "product-50",
+        "product-51",
+        "product-52",
+        "product-53",
+        "product-54",
+        "product-55",
+        "product-56",
+        "product-57",
+        "product-58",
+        "product-59",
+        "product-60"
+      ]
+    }
+  }
+}
