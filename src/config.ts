@@ -1,14 +1,3 @@
-import type {Route} from '@alwatr/router';
-import type {TemplateResult} from 'lit';
-
-export type navigation = Record<
-  string,
-  {
-    title: string;
-    icon: string;
-    render: (route: Route) => TemplateResult;
-  }
->;
 export type locale = {code: 'fa' | 'en'; dir: 'rtl' | 'ltr'; $code: string};
 
 export const locales: locale[] = [
