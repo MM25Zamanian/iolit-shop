@@ -7,7 +7,6 @@ import {state} from 'lit/decorators/state.js';
 
 import {AppElement} from '../app-debt/app-element';
 
-import type {locale} from '../config';
 import type {CategoryInterface} from '../types/category';
 import type {ProductFilter} from '../types/product-filter';
 import type {RadioGroupCustomEvent} from '@ionic/core';
@@ -42,7 +41,7 @@ export class MOdalFilter extends AppElement {
 
   protected _modalPageSignal = new SignalInterface('modal-page');
   protected _categoryListSignal = new SignalInterface('category-list');
-  protected _productListFilterSignal = new SignalInterface('product-list-filter');
+  protected _productListSignal = new SignalInterface('product-list');
   protected _dataTask = new Task(
       this,
       async (): Promise<Record<string, CategoryInterface>> => {
@@ -94,13 +93,13 @@ export class MOdalFilter extends AppElement {
         (category) => html`
         <ion-item>
           <ion-radio slot="start" value=${category.slug} name="category"></ion-radio>
-          <ion-label>${category.title[<locale['code']> this._localize.lang()]}</ion-label>
+          <ion-label>${category.title[this._i18nCode]}</ion-label>
         </ion-item>
       `,
     );
     return html`
       <ion-radio-group
-        value=${this._productListFilterSignal.value?.filter.category ?? 'all'}
+        value=${this._productListSignal.value?.filter.category ?? 'all'}
         name="category"
         @ionChange=${this._filterCategoryChanged}
       >
@@ -147,9 +146,9 @@ export class MOdalFilter extends AppElement {
   }
 
   protected get _canApplyFilters(): boolean {
-    if (!this._productListFilterSignal.value) return false;
+    if (!this._productListSignal.value) return false;
 
-    if (this._filters.category !== this._productListFilterSignal.value.filter.category) {
+    if (this._filters.category !== this._productListSignal.value.filter.category) {
       this._logger.logProperty('_canApplyFilters', true);
       return true;
     }

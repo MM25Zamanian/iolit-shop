@@ -14,7 +14,7 @@ const routes: Record<string, Route> = {
     icon: 'grid',
     render: (route) => {
       if (route.sectionList[1]) {
-        return html`<page-product-detail class="ion-page" pid="${route.sectionList[1]}"></page-product-detail>`;
+        return html`<page-product-detail class="ion-page" pid=${route.sectionList[1]}></page-product-detail>`;
       }
       return html`<page-product-list class="ion-page" type="card"></page-product-list>`;
     },

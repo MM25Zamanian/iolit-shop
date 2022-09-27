@@ -10,7 +10,6 @@ import {when} from 'lit/directives/when.js';
 
 import {AppElement} from '../app-debt/app-element';
 
-import type {locale} from '../config';
 import type {MultiLanguageStringType} from '../types/language';
 import type {ProductInterface} from '../types/product';
 import type {TemplateResult, CSSResult} from 'lit';
@@ -133,13 +132,13 @@ export class PageProductDetail extends AppElement {
     if (name === 'pid' && this.pid) {
       this._productListSignal.request({}).then((products) => {
         if (this.pid) {
-          this._product = products[this.pid];
+          this._product = products.data[this.pid];
           this.requestUpdate('_product');
         }
       });
     }
     if (name === '_product' && this._product) {
-      this.title = this._product.name[<locale['code']> this._localize.lang()];
+      this.title = this._product.name[this._i18nCode];
     }
   }
 
@@ -155,7 +154,7 @@ export class PageProductDetail extends AppElement {
           <ion-button @click=${this._shareData}>
             <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
           </ion-button>
-          <ion-button color="${this._favorite === true ? 'danger' : 'light'}" @click=${this._toggleFavorite}>
+          <ion-button color=${this._favorite === true ? 'danger' : 'light'} @click=${this._toggleFavorite}>
             ${when(
       this._favorite === 'pending',
       () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
@@ -170,14 +169,14 @@ export class PageProductDetail extends AppElement {
     `;
   }
   protected _renderProductDetailTemplate(product: ProductInterface): TemplateResult {
-    const localizeCode = <locale['code']> this._localize.lang();
+    const localizeCode = this._i18nCode;
 
     return html`
       <ion-grid fixed class="ion-no-padding">
         <ion-row class="product__image">
           <ion-col size="12">
             <ion-thumbnail @dblclick=${this._toggleFavorite}>
-              <img src=${product.image.large} />
+              <img src=${product.image.large} alt=${product.name[localizeCode]} />
             </ion-thumbnail>
           </ion-col>
         </ion-row>
@@ -204,7 +203,7 @@ export class PageProductDetail extends AppElement {
       return html`
         <ion-row class="product__header-cart__controller">
           <ion-buttons>
-            <ion-button color="light" @click=${(): number => ++this._quantity}>
+            <ion-button color="light" @click=${this._cartProductPlus}>
               <ion-icon slot="icon-only" name="add"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -212,10 +211,7 @@ export class PageProductDetail extends AppElement {
             <h5>${this._localize.number(this._quantity)}</h5>
           </ion-col>
           <ion-buttons>
-            <ion-button
-              @click=${(): number => --this._quantity}
-              color=${ifDefined(this._quantity > 1 ? 'light' : 'danger')}
-            >
+            <ion-button @click=${this._cartProductMinus} color=${ifDefined(this._quantity > 1 ? 'light' : 'danger')}>
               <ion-icon slot="icon-only" name=${this._quantity > 1 ? 'remove' : 'close'}></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -224,7 +220,7 @@ export class PageProductDetail extends AppElement {
     }
 
     return html`
-      <ion-button expand="block" shape="round" @click=${(): number => (this._quantity = 1)}>
+      <ion-button expand="block" shape="round" @click=${this._cartProductAdd}>
         <ion-icon slot="start" name="cart"></ion-icon>
         <ion-label>${this._localize.term('add_to_cart')}</ion-label>
         <ion-icon slot="end" name="add"></ion-icon>
@@ -232,23 +228,25 @@ export class PageProductDetail extends AppElement {
     `;
   }
   protected _renderProductDescription(description: MultiLanguageStringType): TemplateResult | typeof nothing {
-    const localizeCode = <locale['code']> this._localize.lang();
-    const descriptionText = description[localizeCode];
+    const descriptionText = description[this._i18nCode];
 
     if (!descriptionText) return nothing;
+
+    const descriptionHtml = descriptionText.split('\n').map((paragraph) => html`<p>${paragraph.trim()}</p>`);
 
     return html`
       <ion-col size="12">
         <h3>${this._localize.term('description')}</h3>
       </ion-col>
-      <ion-col size="12"> ${descriptionText.split('\n').map((paragraph) => html`<p>${paragraph.trim()}</p>`)} </ion-col>
+      <ion-col size="12"> ${descriptionHtml} </ion-col>
     `;
   }
   protected _renderProductFeatures(features: MultiLanguageStringType[]): TemplateResult | typeof nothing {
-    const localizeCode = <locale['code']> this._localize.lang();
-    const featuresText = features.map((feature) => feature[localizeCode]);
+    const featuresText = features.map((feature) => feature[this._i18nCode]);
 
     if (!featuresText.length || !featuresText[0]) return nothing;
+
+    const featuresHtml = featuresText.map((feature) => html`<li>${feature.trim()}</li>`);
 
     return html`
       <ion-col size="12">
@@ -256,17 +254,15 @@ export class PageProductDetail extends AppElement {
       </ion-col>
       <ion-col size="12">
         <ul>
-          ${featuresText.map((feature) => html`<li>${feature.trim()}</li>`)}
+          ${featuresHtml}
         </ul>
       </ion-col>
     `;
   }
 
   protected async _shareData(): Promise<void> {
-    const localizeCode = <locale['code']> this._localize.lang();
-
     const data: ShareData = {
-      text: `\n\n\n ${this._product?.name[localizeCode]} \n\n\n`.trim(),
+      text: `\n\n\n ${this._product?.name[this._i18nCode]} \n\n\n`.trim(),
       url: window.location.href,
     };
 
@@ -288,10 +284,19 @@ export class PageProductDetail extends AppElement {
       this._favorite = newValue;
 
       if (this._product) {
-        const title = this._product.name[<locale['code']> this._localize.lang()];
+        const title = this._product.name[this._i18nCode];
         const message = new IonicSafeString(this._localize.term('favorite_past', title, this._favorite));
         this._toastMessageSignal.request({message: message.value, icon: 'heart'});
       }
     }
+  }
+  protected _cartProductPlus(): number {
+    return ++this._quantity;
+  }
+  protected _cartProductMinus(): number {
+    return --this._quantity;
+  }
+  protected _cartProductAdd(): number {
+    return (this._quantity = 1);
   }
 }

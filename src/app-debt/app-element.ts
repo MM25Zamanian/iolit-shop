@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {createLogger} from '@alwatr/logger';
 import {Components as _} from '@ionic/core/dist/types/components';
 import {LocalizeController} from '@shoelace-style/localize/dist/index.js';
@@ -9,10 +10,9 @@ import ionicTheming from '../stylesheets/ionic.theming';
 import ionicUtilities from '../stylesheets/ionic.utilities';
 import reset from '../stylesheets/reset';
 
+import type {locale} from '../config';
 import type {AlwatrLogger} from '@alwatr/logger/type';
 import type {PropertyValues, CSSResult} from 'lit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
 type Constructor<ClassType = {}> = new (...args: any[]) => ClassType;
@@ -20,6 +20,7 @@ type Constructor<ClassType = {}> = new (...args: any[]) => ClassType;
 export declare class LoggableMixinInterface extends LitElement {
   protected _logger: AlwatrLogger;
   protected _localize: LocalizeController;
+  protected get _i18nCode(): locale['code'];
 }
 
 export function LoggableMixin<ClassType extends Constructor<LitElement>>(
@@ -152,6 +153,10 @@ export function LoggableMixin<ClassType extends Constructor<LitElement>>(
     override dispatchEvent(event: CustomEvent | Event): boolean {
       this._logger.logMethodArgs('dispatchEvent', {type: event.type});
       return super.dispatchEvent(event);
+    }
+
+    protected get _i18nCode(): locale['code'] {
+      return <locale['code']> this._localize.lang();
     }
   }
   return LoggableMixinClass as unknown as Constructor<LoggableMixinInterface> & ClassType;

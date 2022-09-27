@@ -42,9 +42,9 @@ export class MOdalSearch extends AppElement {
       async (): Promise<Record<string, ProductInterface>> => {
         const products = await this._productListSignal.request({});
 
-        this._products = products;
+        this._products = products.data;
 
-        return products;
+        return products.data;
       },
       () => [],
   );
