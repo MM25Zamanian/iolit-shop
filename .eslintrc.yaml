@@ -3,11 +3,12 @@ root: true
 extends:
   - eslint:recommended
   - google
+  - prettier
   - plugin:@typescript-eslint/eslint-recommended
   - plugin:@typescript-eslint/recommended
   - plugin:import/recommended
   - plugin:import/typescript
-  - plugin:wc/recommended
+  - plugin:wc/best-practice
   - plugin:lit/all
   - plugin:lit-a11y/recommended
 
@@ -38,6 +39,7 @@ settings:
       # TODO: Add other classes
 
 rules:
+  wc/guard-super-call: off
   max-len:
     - warn
     - code: 120

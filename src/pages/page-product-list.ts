@@ -68,33 +68,31 @@ export class PageProductList extends AppElement {
   protected _productListSignal = new SignalInterface('product-list');
   protected _modalPageSignal = new SignalInterface('modal-page');
   protected _dataTask = new Task(
-      this,
-      async (): Promise<Record<string, ProductInterface>> => {
-        const data = await this._productListSignal.request(router.currentRoute.queryParamList);
+    this,
+    async (): Promise<Record<string, ProductInterface>> => {
+      const data = await this._productListSignal.request(router.currentRoute.queryParamList);
 
-        this._data = data.data;
+      this._data = data.data;
 
-        return data.data;
-      },
-      () => [],
+      return data.data;
+    },
+    () => []
   );
 
   override connectedCallback(): void {
-    super.connectedCallback();
-
     this._listenerList.push(
-        router.signal.addListener(
-            (route) => {
-              if (route.sectionList[0] === 'products') {
-                this._dataTask.run();
-              }
-            },
-            {receivePrevious: true},
-        ),
-        this._productListSignal.addListener((data) => {
-          this._data = data.data;
-          this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
-        }),
+      router.signal.addListener(
+        (route) => {
+          if (route.sectionList[0] === 'products') {
+            this._dataTask.run();
+          }
+        },
+        {receivePrevious: true}
+      ),
+      this._productListSignal.addListener((data) => {
+        this._data = data.data;
+        this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
+      })
     );
     // this._listenerList.push(router.signal.addListener(() => this.requestUpdate()));
   }
@@ -107,22 +105,22 @@ export class PageProductList extends AppElement {
       <ion-header> ${this._renderToolbarTemplate()} </ion-header>
       <ion-content fullscreen .scrollY=${this._dataTask.status === 2}>
         ${this._dataTask.render({
-    pending: () => this._renderSkeletonCardsTemplate(),
-    complete: () => this._renderCardsTemplate(),
-  })}
+          pending: () => this._renderSkeletonCardsTemplate(),
+          complete: () => this._renderCardsTemplate(),
+        })}
       </ion-content>
     `;
   }
 
   protected _renderCardsTemplate(): TemplateResult {
     const productListTemplate = repeat(
-        Object.values(this._data).filter((_product, index) => !(this._scrollIndex + 6 <= index)),
-        (product) => product._id,
-        (product, index) => html`
+      Object.values(this._data).filter((_product, index) => !(this._scrollIndex + 6 <= index)),
+      (product) => product._id,
+      (product, index) => html`
         <ion-col size="6" ?hidden=${this._scrollIndex <= index}>
           <p-roduct .info=${product}></p-roduct>
         </ion-col>
-      `,
+      `
     );
 
     return html`
@@ -137,12 +135,12 @@ export class PageProductList extends AppElement {
   }
   protected _renderSkeletonCardsTemplate(): TemplateResult {
     const productListTemplate = map(
-        range(10),
-        () => html`
+      range(10),
+      () => html`
         <ion-col size="6">
           <p-roduct></p-roduct>
         </ion-col>
-      `,
+      `
     );
 
     return html`
@@ -182,13 +180,13 @@ export class PageProductList extends AppElement {
       event.target.disabled = true;
     }
     this._logger.logMethodFull(
-        '_infiniteScroll',
-        {event},
-        {
-          '_scrollIndex': this._scrollIndex,
-          '_data.length': Object.values(this._data).length,
-          'canUp': this._scrollIndex + 6 < Object.values(this._data).length,
-        },
+      '_infiniteScroll',
+      {event},
+      {
+        _scrollIndex: this._scrollIndex,
+        '_data.length': Object.values(this._data).length,
+        canUp: this._scrollIndex + 6 < Object.values(this._data).length,
+      }
     );
   }
   protected _openModalFilters(): void {

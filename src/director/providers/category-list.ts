@@ -7,6 +7,6 @@ export default async function categoryListProvider(): Promise<Record<string, Cat
   return await categoryList();
 }
 
-categoryListSignal.setProvider(async function(): Promise<Record<string, CategoryInterface>> {
+categoryListSignal.setProvider(async function (): Promise<Record<string, CategoryInterface>> {
   return await categoryList();
 });

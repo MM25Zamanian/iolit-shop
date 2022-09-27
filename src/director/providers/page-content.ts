@@ -5,7 +5,7 @@ import {pageContentSignal} from '../signal';
 
 import type {PageContent} from '../../types/page-content';
 
-pageContentSignal.setProvider(async function(pageTagName): Promise<Record<string, PageContent>> {
+pageContentSignal.setProvider(async function (pageTagName): Promise<Record<string, PageContent>> {
   pageTagName = pageTagName.toLowerCase();
   const purePageContents = await pageContent(pageTagName);
   const pageContents: Record<string, PageContent> = {};
@@ -22,7 +22,7 @@ pageContentSignal.setProvider(async function(pageTagName): Promise<Record<string
           return banner;
         });
         content.data[bannerRowId] = <InfoBannerRowInterface>{
-          banners: <InfoBanner[]> await Promise.all(promisedBannerRow),
+          banners: <InfoBanner[]>await Promise.all(promisedBannerRow),
         };
         content.data = content.data as Record<string, InfoBannerRowInterface>;
       }
@@ -36,7 +36,7 @@ pageContentSignal.setProvider(async function(pageTagName): Promise<Record<string
           title: content.data.title,
           href: content.data.href,
           productList: Object.fromEntries(
-              content.data.productIdList.map((productId) => [productId, productList[productId]]),
+            content.data.productIdList.map((productId) => [productId, productList[productId]])
           ),
         },
       };

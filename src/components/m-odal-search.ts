@@ -38,15 +38,15 @@ export class MOdalSearch extends AppElement {
   protected _modalPageSignal = new SignalInterface('modal-page');
   protected _productListSignal = new SignalInterface('product-list');
   protected _dataTask = new Task(
-      this,
-      async (): Promise<Record<string, ProductInterface>> => {
-        const products = await this._productListSignal.request({});
+    this,
+    async (): Promise<Record<string, ProductInterface>> => {
+      const products = await this._productListSignal.request({});
 
-        this._products = products.data;
+      this._products = products.data;
 
-        return products.data;
-      },
-      () => [],
+      return products.data;
+    },
+    () => []
   );
 
   override render(): TemplateResult {
@@ -87,10 +87,10 @@ export class MOdalSearch extends AppElement {
     return html`
       <ion-list lines="inset">
         ${repeat(
-      productList,
-      (product) => product._id,
-      (product) => html`<p-roduct .info=${product} type="item-card"></p-roduct>`,
-  )}
+          productList,
+          (product) => product._id,
+          (product) => html`<p-roduct .info=${product} type="item-card"></p-roduct>`
+        )}
       </ion-list>
     `;
   }
@@ -118,8 +118,8 @@ export class MOdalSearch extends AppElement {
         product.features.map((feat) => getV(feat)).flat(),
         product.slug,
       ]
-          .flat()
-          .join(' ');
+        .flat()
+        .join(' ');
 
       return queryModel.indexOf(query) !== -1;
     });

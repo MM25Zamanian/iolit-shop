@@ -121,14 +121,14 @@ export class AppIndex extends AppElement {
     loadData.appData();
 
     this._listenerList.push(
-        router.signal.addListener(
-            (route) => {
-              this._logger.logMethodArgs('routeChanged', {route});
-              this._activePage = route.sectionList[0]?.toString().trim() || 'home';
-              this.requestUpdate();
-            },
-            {receivePrevious: true},
-        ),
+      router.signal.addListener(
+        (route) => {
+          this._logger.logMethodArgs('routeChanged', {route});
+          this._activePage = route.sectionList[0]?.toString().trim() || 'home';
+          this.requestUpdate();
+        },
+        {receivePrevious: true}
+      )
     );
   }
   override disconnectedCallback(): void {
@@ -154,7 +154,7 @@ export class AppIndex extends AppElement {
 
         if (route.show_in_bar !== false) {
           navItemsTemplate.push(
-              html`
+            html`
               <ion-tab-button
                 layout=${selected ? 'icon-top' : 'label-hide'}
                 href=${router.makeUrl({sectionList: [slug]})}
@@ -162,11 +162,11 @@ export class AppIndex extends AppElement {
               >
                 <ion-label>${this._localize.term(route.title)}</ion-label>
                 ${when(
-      route.icon,
-      () => html`<ion-icon name=${ifDefined(selected ? route.icon : route.icon + '-outline')}></ion-icon>`,
-  )}
+                  route.icon,
+                  () => html`<ion-icon name=${ifDefined(selected ? route.icon : route.icon + '-outline')}></ion-icon>`
+                )}
               </ion-tab-button>
-            `,
+            `
           );
         }
       }

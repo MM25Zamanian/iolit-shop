@@ -4,8 +4,8 @@ import type {InfoBanner} from '../types/banner';
 import type {CategoryInterface} from '../types/category';
 
 export async function categoryToInfoBanner(
-    categoryId: string,
-    categoryList: Record<string, CategoryInterface>,
+  categoryId: string,
+  categoryList: Record<string, CategoryInterface>
 ): Promise<InfoBanner> {
   const category = categoryList[categoryId];
 

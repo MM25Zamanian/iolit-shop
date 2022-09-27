@@ -9,7 +9,7 @@ import '../pages/page-cart';
 import '../pages/page-about';
 
 const routes: Record<string, Route> = {
-  'products': {
+  products: {
     title: 'products',
     icon: 'grid',
     render: (route) => {
@@ -19,22 +19,22 @@ const routes: Record<string, Route> = {
       return html`<page-product-list class="ion-page" type="card"></page-product-list>`;
     },
   },
-  'cart': {
+  cart: {
     title: 'cart',
     icon: 'cart',
     render: () => html`<page-cart class="ion-page"></page-cart>`,
   },
-  'home': {
+  home: {
     title: 'home',
     icon: 'home',
     render: () => html`<page-home class="ion-page"></page-home>`,
   },
-  'account': {
+  account: {
     title: 'account',
     icon: 'person',
     render: () => html`<page-home class="ion-page"></page-home>`,
   },
-  'contact': {
+  contact: {
     title: 'contact_us',
     icon: 'call',
     render: () => html`<page-about class="ion-page"></page-about>`,

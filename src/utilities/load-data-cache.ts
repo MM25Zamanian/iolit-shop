@@ -14,9 +14,9 @@ const pendingRequestList = new Map<string, Promise<Record<string | number, unkno
  * @returns A promise that resolves to a ResponseType
  */
 export async function loadDataCaching<ResponseType extends Record<string | number, unknown>>(
-    url: string,
-    queryParameters?: Record<string | number, string | number | boolean>,
-    options?: FetchOptions,
+  url: string,
+  queryParameters?: Record<string | number, string | number | boolean>,
+  options?: FetchOptions
 ): Promise<ResponseType> {
   const fetchedData = getFetchedData<ResponseType>(url);
   if (fetchedData) {
@@ -52,7 +52,7 @@ function getFetchedData<ResponseType extends Record<string | number, unknown>>(u
  * @returns A promise that resolves to the data fetched from the url.
  */
 async function getPendingRequest<ResponseType extends Record<string | number, unknown>>(
-    url: string,
+  url: string
 ): Promise<ResponseType | undefined> {
   return (await pendingRequestList.get(url)) as ResponseType | undefined;
 }
@@ -65,9 +65,9 @@ async function getPendingRequest<ResponseType extends Record<string | number, un
  * @returns A promise that resolves to a ResponseType
  */
 function fetchToGetData<ResponseType extends Record<string | number, unknown>>(
-    url: string,
-    queryParameters?: Record<string | number, string | number | boolean>,
-    options?: FetchOptions,
+  url: string,
+  queryParameters?: Record<string | number, string | number | boolean>,
+  options?: FetchOptions
 ): Promise<ResponseType> {
   const response = getJson<ResponseType>(url, queryParameters, options).then((jsonData) => {
     fetchedDataList.set(url, jsonData);

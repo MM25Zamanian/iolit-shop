@@ -123,9 +123,9 @@ export class PageProductDetail extends AppElement {
     `;
   }
   override requestUpdate(
-      name?: PropertyKey | undefined,
-      oldValue?: unknown,
-      options?: PropertyDeclaration<unknown, unknown> | undefined,
+    name?: PropertyKey | undefined,
+    oldValue?: unknown,
+    options?: PropertyDeclaration<unknown, unknown> | undefined
   ): void {
     super.requestUpdate(name, oldValue, options);
 
@@ -156,10 +156,10 @@ export class PageProductDetail extends AppElement {
           </ion-button>
           <ion-button color=${this._favorite === true ? 'danger' : 'light'} @click=${this._toggleFavorite}>
             ${when(
-      this._favorite === 'pending',
-      () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
-      () => html` <ion-icon slot="icon-only" name=${this._favorite ? 'heart' : 'heart-outline'}></ion-icon> `,
-  )}
+              this._favorite === 'pending',
+              () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
+              () => html` <ion-icon slot="icon-only" name=${this._favorite ? 'heart' : 'heart-outline'}></ion-icon> `
+            )}
           </ion-button>
           <ion-button>
             <ion-icon slot="icon-only" name="cart-outline"></ion-icon>

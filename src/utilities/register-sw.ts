@@ -13,23 +13,23 @@ export default async function registerSW(): Promise<void> {
 
   if ('serviceWorker' in navigator) {
     return await navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => {
-          logger.logMethodArgs('then', {registration: registration});
+      .register('/sw.js')
+      .then((registration) => {
+        logger.logMethodArgs('then', {registration: registration});
 
-          const update = (): Promise<void> =>
-            registration.update().then(() => {
-              toastSignal.request({
-                message: 'Application Successfully Updated',
-              });
+        const update = (): Promise<void> =>
+          registration.update().then(() => {
+            toastSignal.request({
+              message: 'Application Successfully Updated',
             });
-
-          registration.addEventListener('updatefound', () => {
-            logger.logMethod('updatefound');
-            update();
           });
-          signal.addListener(() => update());
-        })
-        .catch((error) => logger.error('error', '500', error));
+
+        registration.addEventListener('updatefound', () => {
+          logger.logMethod('updatefound');
+          update();
+        });
+        signal.addListener(() => update());
+      })
+      .catch((error) => logger.error('error', '500', error));
   }
 }

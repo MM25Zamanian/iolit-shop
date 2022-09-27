@@ -195,10 +195,10 @@ export class Product extends AppElement {
     return html`
       <ion-button color=${this.favorite === true ? 'danger' : 'dark'} @click=${this._toggleFavorite}>
         ${when(
-      this.favorite === 'pending',
-      () => html` <ion-spinner slot="icon-only" duration="1000" color="primary"></ion-spinner> `,
-      () => html` <ion-icon slot="icon-only" name=${this.favorite ? 'heart' : 'heart-outline'}></ion-icon> `,
-  )}
+          this.favorite === 'pending',
+          () => html` <ion-spinner slot="icon-only" duration="1000" color="primary"></ion-spinner> `,
+          () => html` <ion-icon slot="icon-only" name=${this.favorite ? 'heart' : 'heart-outline'}></ion-icon> `
+        )}
       </ion-button>
     `;
   }

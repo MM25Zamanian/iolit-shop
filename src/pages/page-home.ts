@@ -64,15 +64,15 @@ export class PageHome extends AppElement {
   protected _productListSignal = new SignalInterface('product-list');
   protected _pageContentSignal = new SignalInterface('page-content');
   protected _pageContentTask = new Task(
-      this,
-      async (): Promise<Record<string, PageContent>> => {
-        const pageContent = await this._pageContentSignal.request(this.tagName);
+    this,
+    async (): Promise<Record<string, PageContent>> => {
+      const pageContent = await this._pageContentSignal.request(this.tagName);
 
-        this._logger.logProperty('pageContent', {pageContent});
+      this._logger.logProperty('pageContent', {pageContent});
 
-        return pageContent;
-      },
-      () => [],
+      return pageContent;
+    },
+    () => []
   );
 
   override connectedCallback(): void {
@@ -87,25 +87,25 @@ export class PageHome extends AppElement {
     return html`
       <ion-content fullscreen>
         ${this._pageContentTask.render({
-    complete: (pageContent) => {
-      return Object.values(pageContent).map((content) => {
-        switch (content.type) {
-          case 'banner':
-            return this._renderBanners(content.data);
+          complete: (pageContent) => {
+            return Object.values(pageContent).map((content) => {
+              switch (content.type) {
+                case 'banner':
+                  return this._renderBanners(content.data);
 
-          case 'scroller':
-            return this._renderProductScroller(
-                content.data.title[this._i18nCode],
-                content.data.productList,
-                content.data.href,
-            );
+                case 'scroller':
+                  return this._renderProductScroller(
+                    content.data.title[this._i18nCode],
+                    content.data.productList,
+                    content.data.href
+                  );
 
-          default:
-            return nothing;
-        }
-      });
-    },
-  })}
+                default:
+                  return nothing;
+              }
+            });
+          },
+        })}
       </ion-content>
     `;
   }
@@ -148,12 +148,12 @@ export class PageHome extends AppElement {
     `;
   }
   protected _renderProductScroller(
-      title: string,
-      productList: Record<string, ProductInterface>,
-      href?: string,
+    title: string,
+    productList: Record<string, ProductInterface>,
+    href?: string
   ): TemplateResult {
     const productCardTemplates = Object.values(productList).map(
-        (product) => html` <p-roduct .info=${product}></p-roduct> `,
+      (product) => html` <p-roduct .info=${product}></p-roduct> `
     );
 
     return html`

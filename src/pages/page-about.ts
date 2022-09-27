@@ -71,7 +71,7 @@ export class PageAbout extends AppElement {
 
   protected _renderDeveloperTeamList(): TemplateResult {
     const developerTeamTemplate = developerTeam.map(
-        (developer) => html`
+      (developer) => html`
         <ion-item href=${ifDefined(developer.link)} target="_blank">
           <ion-avatar slot="start">
             <img src=${developer.image} alt="" />
@@ -81,7 +81,7 @@ export class PageAbout extends AppElement {
             <p>${this._localize.term(developer.description)}</p>
           </ion-label>
         </ion-item>
-      `,
+      `
     );
     return html`
       <ion-list lines="full">

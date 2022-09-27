@@ -43,16 +43,16 @@ export class MOdalFilter extends AppElement {
   protected _categoryListSignal = new SignalInterface('category-list');
   protected _productListSignal = new SignalInterface('product-list');
   protected _dataTask = new Task(
-      this,
-      async (): Promise<Record<string, CategoryInterface>> => {
-        const data = await this._categoryListSignal.request({});
+    this,
+    async (): Promise<Record<string, CategoryInterface>> => {
+      const data = await this._categoryListSignal.request({});
 
-        this._categoryList = data;
-        this._logger.logProperty('_categoryList', {data});
+      this._categoryList = data;
+      this._logger.logProperty('_categoryList', {data});
 
-        return data;
-      },
-      () => [],
+      return data;
+    },
+    () => []
   );
 
   override connectedCallback(): void {
@@ -73,9 +73,9 @@ export class MOdalFilter extends AppElement {
       </ion-header>
       <ion-content fullscreen>
         ${this._dataTask.render({
-    pending: () => html``,
-    complete: () => html`<ion-list> ${this._renderCategoryFilters()} </ion-list>`,
-  })}
+          pending: () => html``,
+          complete: () => html`<ion-list> ${this._renderCategoryFilters()} </ion-list>`,
+        })}
       </ion-content>
       <ion-footer>
         <ion-button expand="full" size="large" ?disabled=${!this._canApplyFilters} @click=${this._applyFilters}>
@@ -90,12 +90,12 @@ export class MOdalFilter extends AppElement {
     if (!this._categoryListSignal.value) return nothing;
 
     const categoryListTemplate = Object.values(this._categoryListSignal.value).map(
-        (category) => html`
+      (category) => html`
         <ion-item>
           <ion-radio slot="start" value=${category.slug} name="category"></ion-radio>
           <ion-label>${category.title[this._i18nCode]}</ion-label>
         </ion-item>
-      `,
+      `
     );
     return html`
       <ion-radio-group

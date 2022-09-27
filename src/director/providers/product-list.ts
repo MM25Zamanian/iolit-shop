@@ -4,8 +4,8 @@ import {productListSignal} from '../signal';
 import type {ProductInterface} from '../../types/product';
 import type {ProductFilter} from '../../types/product-filter';
 
-productListSignal.setProvider(async function(
-    filterParam,
+productListSignal.setProvider(async function (
+  filterParam
 ): Promise<{data: Record<string, ProductInterface>; filter: ProductFilter}> {
   const data = await productList();
 

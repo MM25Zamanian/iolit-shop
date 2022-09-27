@@ -24,7 +24,7 @@ export declare class LoggableMixinInterface extends LitElement {
 }
 
 export function LoggableMixin<ClassType extends Constructor<LitElement>>(
-    superClass: ClassType,
+  superClass: ClassType
 ): Constructor<LoggableMixinInterface> & ClassType {
   class LoggableMixinClass extends superClass {
     protected _logger = createLogger(`<${this.tagName.toLowerCase()}>`);
@@ -156,7 +156,7 @@ export function LoggableMixin<ClassType extends Constructor<LitElement>>(
     }
 
     protected get _i18nCode(): locale['code'] {
-      return <locale['code']> this._localize.lang();
+      return <locale['code']>this._localize.lang();
     }
   }
   return LoggableMixinClass as unknown as Constructor<LoggableMixinInterface> & ClassType;
