@@ -55,7 +55,7 @@ export class PageAbout extends AppElement {
           <ion-row>
             <ion-col class="ion-padding-bottom" size="12">
               <ion-avatar class="ion-padding">
-                <img src="/images/icon-144x144.png" />
+                <img src="/images/icon-144x144.png" alt="" />
               </ion-avatar>
               <ion-text color="dark">
                 <h1>${this._localize.term('spy_game_web_app')}</h1>
@@ -74,7 +74,7 @@ export class PageAbout extends AppElement {
         (developer) => html`
         <ion-item href=${ifDefined(developer.link)} target="_blank">
           <ion-avatar slot="start">
-            <img src=${developer.image} />
+            <img src=${developer.image} alt="" />
           </ion-avatar>
           <ion-label>
             <h3>${this._localize.term(developer.name)}</h3>

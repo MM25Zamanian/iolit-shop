@@ -65,12 +65,12 @@ export class PageProductList extends AppElement {
   @query('ion-infinite-scroll') protected _infiniteScrollElement?: HTMLIonInfiniteScrollElement;
 
   protected _listenerList: Array<unknown> = [];
-  protected _productListFilterSignal = new SignalInterface('product-list-filter');
+  protected _productListSignal = new SignalInterface('product-list');
   protected _modalPageSignal = new SignalInterface('modal-page');
   protected _dataTask = new Task(
       this,
       async (): Promise<Record<string, ProductInterface>> => {
-        const data = await this._productListFilterSignal.request(router.currentRoute.queryParamList);
+        const data = await this._productListSignal.request(router.currentRoute.queryParamList);
 
         this._data = data.data;
 
@@ -91,7 +91,7 @@ export class PageProductList extends AppElement {
             },
             {receivePrevious: true},
         ),
-        this._productListFilterSignal.addListener((data) => {
+        this._productListSignal.addListener((data) => {
           this._data = data.data;
           this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
         }),

@@ -7,7 +7,7 @@ import {ifDefined} from 'lit/directives/if-defined.js';
 import {when} from 'lit/directives/when.js';
 
 import {AppElement} from './app-debt/app-element';
-import {loadAppData} from './director';
+import {loadData} from './director';
 import routes from './router/routes';
 import en from './translation/en';
 import fa from './translation/fa';
@@ -118,7 +118,7 @@ export class AppIndex extends AppElement {
 
     registerTranslation(en, fa);
     registerSW();
-    loadAppData();
+    loadData.appData();
 
     this._listenerList.push(
         router.signal.addListener(

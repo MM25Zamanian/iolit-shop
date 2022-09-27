@@ -8,7 +8,6 @@ import {when} from 'lit/directives/when.js';
 
 import {AppElement} from '../app-debt/app-element';
 
-import type {locale} from '../config';
 import type {ProductInterface} from '../types/product';
 import type {TemplateResult, CSSResult} from 'lit';
 
@@ -119,14 +118,14 @@ export class Product extends AppElement {
   }
 
   protected _renderCardVertical(product: ProductInterface): TemplateResult {
-    const title = product.name[<locale['code']> this._localize.lang()];
-    const price = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
-    // const description = product.description[<locale['code']> this._localize.lang()];
+    const title = product.name[this._i18nCode];
+    const price = this._localize.number(product.price[this._i18nCode]);
+    // const description = product.description[this._i18nCode];
 
     return html`
       <ion-card href=${router.makeUrl({sectionList: ['products', product._id]})} class="card-vertical">
         <div class="ion-card-image">
-          <img src=${product.image.normal} />
+          <img src=${product.image.normal} alt=${title} />
         </div>
         <ion-card-header>
           <ion-card-title> ${title} </ion-card-title>
@@ -147,9 +146,9 @@ export class Product extends AppElement {
     `;
   }
   protected _renderCardItem(product: ProductInterface): TemplateResult {
-    const title = product.name[<locale['code']> this._localize.lang()];
-    const price = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
-    const description = product.description[<locale['code']> this._localize.lang()];
+    const title = product.name[this._i18nCode];
+    const price = this._localize.number(product.price[this._i18nCode]);
+    const description = product.description[this._i18nCode];
 
     return html`
       <ion-item>
@@ -194,7 +193,7 @@ export class Product extends AppElement {
   }
   protected _renderFavoriteButton(): TemplateResult {
     return html`
-      <ion-button color="${this.favorite === true ? 'danger' : 'dark'}" @click=${this._toggleFavorite}>
+      <ion-button color=${this.favorite === true ? 'danger' : 'dark'} @click=${this._toggleFavorite}>
         ${when(
       this.favorite === 'pending',
       () => html` <ion-spinner slot="icon-only" duration="1000" color="primary"></ion-spinner> `,
@@ -225,7 +224,7 @@ export class Product extends AppElement {
       this.favorite = newValue;
 
       if (this.info) {
-        const title = this.info.name[<locale['code']> this._localize.lang()];
+        const title = this.info.name[this._i18nCode];
         const message = new IonicSafeString(this._localize.term('favorite_past', title, this.favorite));
         this._toastMessageSignal.request({message: message.value, icon: 'heart'});
       }

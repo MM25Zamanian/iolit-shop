@@ -51,10 +51,10 @@ export class PageCart extends AppElement {
   //       this._cart,
   //       (product) => product.id,
   //       (product) => {
-  //         const title = product.title[<locale['code']> this._localize.lang()];
-  //         const priceFi = this._localize.number(product.price[<locale['code']> this._localize.lang()]);
+  //         const title = product.title[this._i18nCode];
+  //         const priceFi = this._localize.number(product.price[this._i18nCode]);
   //         const _______priceTotal = this._localize.number(
-  //             product.price[<locale['code']> this._localize.lang()] * product.count,
+  //             product.price[this._i18nCode] * product.count,
   //         );
 
   //         return html`
