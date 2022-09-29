@@ -2,9 +2,9 @@ import {createLogger} from '@alwatr/logger';
 import {update as localizeUpdate} from '@shoelace-style/localize/dist/index';
 import {notEqual} from 'lit';
 
-import {locales} from '../config';
+import {locales} from '../types/config';
 
-import type {locale} from '../config';
+import type {locale} from '../types/config';
 
 /**
  * It updates the language and direction of the HTML element
