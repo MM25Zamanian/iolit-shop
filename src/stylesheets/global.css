@@ -30,6 +30,13 @@ html {
   --ion-color-primary-shade: #5600d1;
   --ion-color-primary-tint: #721af0;
 
+  --ion-color-secondary: #f54900;
+	--ion-color-secondary-rgb: 245,73,0;
+	--ion-color-secondary-contrast: #ffffff;
+	--ion-color-secondary-contrast-rgb: 255,255,255;
+	--ion-color-secondary-shade: #d84000;
+	--ion-color-secondary-tint: #f65b1a;
+
   --ion-background-color: #eee;
   --ion-background-color-rgb: 238, 238, 238;
 
