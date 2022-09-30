@@ -1,12 +1,19 @@
+import {SignalInterface} from '@alwatr/signal';
+import {Task} from '@lit-labs/task';
 import {css, html} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
+import {state} from 'lit/decorators/state.js';
+import {repeat} from 'lit/directives/repeat.js';
+
+import '@vaadin/number-field';
 
 import {AppElement} from '../app-debt/app-element';
 
-import type {ListenerInterface} from '@alwatr/signal';
-import type {TemplateResult, CSSResult} from 'lit';
+import '../components/p-roduct';
 
-import '@erbium/iconsax';
+import type {CartInterface} from '../types/cart';
+import type {NumberFieldValueChangedEvent} from '@vaadin/number-field';
+import type {TemplateResult, CSSResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -26,74 +33,161 @@ export class PageCart extends AppElement {
   static override styles = [
     ...(<CSSResult[]>AppElement.styles),
     css`
-      .count {
-        text-align: center;
+      ion-item {
+        --background: #fff;
+        /*         --padding-start: 8px;
+        --padding-end: 0;
+        --inner-padding-end: 0; */
+      }
+      ion-card.invoice ion-item.total ion-label {
+        text-transform: uppercase;
+        color: var(--ion-color-step-650);
+      }
+      ion-card.invoice ion-item.total ion-label[slot='end'] {
+        color: var(--ion-color-step-850);
+        font-size: 24px;
+      }
+      ion-card.invoice ion-list.detail {
+        padding: 0;
+      }
+      ion-card.invoice ion-list.detail ion-item {
+        --min-height: min-content;
+      }
+      ion-card.invoice ion-list.detail ion-item ion-label {
+        margin: 8px 0;
+      }
+      ion-card.invoice ion-list.detail ion-item ion-label[slot='end'] {
+        color: var(--ion-color-step-500);
+        font-size: 14px;
       }
     `,
   ];
 
+  @state() protected _cart: CartInterface[] = [];
+
   protected _listenerList: Array<unknown> = [];
+  protected _cartInvoidDetailObject: Record<string, () => string> = {
+    Subtotal: () => this._invoiceDetail.subtotal.toFixed(2),
+    Shipping: () => this._invoiceDetail.shipping.toFixed(2),
+    Tax: () => this._invoiceDetail.tax.toFixed(2) + ' %',
+  };
+  protected _cartSignal = new SignalInterface('cart');
+  protected _cartTask = new Task(
+    this,
+    async ([productId, quantity]): Promise<CartInterface[]> => {
+      const cart = Object.values(
+        await this._cartSignal.request({productId: <string>productId, quantity: <number>quantity})
+      );
+      this._cart = cart;
+      return cart;
+    },
+    () => ['', 0]
+  );
 
-  override connectedCallback(): void {
-    super.connectedCallback();
-    // this._listenerList.push(router.signal.addListener(() => this.requestUpdate()));
-  }
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._listenerList.forEach((listener) => (listener as ListenerInterface<keyof AlwatrSignals>).remove());
-  }
   override render(): TemplateResult {
-    return html` <ion-content fullscreen> </ion-content> `;
+    return html`
+      <ion-content fullscreen> ${this._renderCartItemListTemplate()} ${this._renderCartInvoiceTemplate()} </ion-content>
+    `;
   }
 
-  // protected _renderMinimalCardTemplate(): TemplateResult {
-  //   const listTemplate = repeat(
-  //       this._cart,
-  //       (product) => product.id,
-  //       (product) => {
-  //         const title = product.title[this._i18nCode];
-  //         const priceFi = this._localize.number(product.price[this._i18nCode]);
-  //         const _______priceTotal = this._localize.number(
-  //             product.price[this._i18nCode] * product.count,
-  //         );
+  protected _renderCartItemListTemplate(): TemplateResult {
+    const cartItemListTemplate = repeat(
+      this._cart,
+      (cartItem) => cartItem.product._id,
+      (cartItem) =>
+        html`<p-roduct
+          type="cart-item"
+          .info=${cartItem.product}
+          quantity=${cartItem.quantity}
+          @quantity-changed=${this._cartQuantityChangedEvent(cartItem)}
+          @product-remove=${this._cartDelProduct}
+        ></p-roduct>`
+    );
 
-  //         return html`
-  //         <ion-card>
-  //           <ion-item>
-  //             <ion-avatar slot="start">
-  //               <img src="${product.image}" />
-  //             </ion-avatar>
-  //             <ion-label>${title}</ion-label>
-  //           </ion-item>
-  //           <ion-item lines="none">
-  //             <ion-label>${product.count}</ion-label>
-  //             <ion-label>${priceFi}</ion-label>
-  //             <ion-label slot="end"> ${_______priceTotal} ${this._localize.term('$price_unit')} </ion-label>
-  //           </ion-item>
-  //           ${this._renderProductCartController(product)}
-  //         </ion-card>
-  //       `;
-  //       },
-  //   );
+    return html`
+      <ion-card>
+        <ion-list class="ion-no-padding" lines="full"> ${cartItemListTemplate} </ion-list>
+      </ion-card>
+    `;
+  }
+  protected _renderCartInvoiceTemplate(): TemplateResult {
+    const invoiceDetailTemplate = Object.entries(this._cartInvoidDetailObject).map(([title, value]) => {
+      return html`
+        <ion-item>
+          <ion-label>
+            <h3>${title}</h3>
+          </ion-label>
+          <ion-label slot="end">${value()}</ion-label>
+        </ion-item>
+      `;
+    });
 
-  //   return html`<ion-list lines="inset">${listTemplate}</ion-list>`;
-  // }
-  // protected _renderProductCartController(product: cartItem): TemplateResult {
-  //   return html`
-  //     <ion-toolbar color="medium">
-  //       <ion-buttons slot="start">
-  //         <ion-button @click=${async (): Promise<void> => await this._minusProductInCart(product)}>
-  //           <ion-icon slot="icon-only" name="${product.count > 1 ? 'remove-outline' : 'close-outline'}"></ion-icon>
-  //         </ion-button>
-  //       </ion-buttons>
-  //       <ion-buttons slot="end">
-  //         <ion-button @click=${async (): Promise<void> => await this._plusProductInCart(product)}>
-  //           <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-  //         </ion-button>
-  //       </ion-buttons>
+    return html`
+      <ion-card class="invoice">
+        <ion-item class="total" lines="full">
+          <ion-label>
+            <h2>Total</h2>
+          </ion-label>
+          <ion-label slot="end"> ${this._invoiceTotal.toFixed(2)} ${this._localize.term('$price_unit')} </ion-label>
+        </ion-item>
 
-  //       <ion-title class="count">${product.count}</ion-title>
-  //     </ion-toolbar>
-  //   `;
-  // }
+        <ion-list lines="none" class="detail"> ${invoiceDetailTemplate} </ion-list>
+      </ion-card>
+    `;
+  }
+
+  protected _cartDelProduct(event: CustomEvent<{productId: string}>): void {
+    this._cartTask.run([event.detail.productId, 0]);
+  }
+  /**
+   * "When the user changes the quantity of a product in the cart, update the cart."
+   *
+   * The first line of the function is a TypeScript type annotation. It's not required, but it's a good
+   * idea to include it. It tells the TypeScript compiler that the first parameter is a CartInterface
+   * object and the second parameter is a NumberFieldValueChangedEvent object
+   * @param {CartInterface} cartItem - CartInterface - this is the cart item that was changed
+   * @param {NumberFieldValueChangedEvent} event - NumberFieldValueChangedEvent
+   */
+  protected _cartQuantityChanged(cartItem: CartInterface, event: NumberFieldValueChangedEvent): void {
+    const value = Number(event.detail.value);
+    if (value && cartItem.quantity !== value) {
+      this._cartTask.run([cartItem.product._id, value]);
+    }
+  }
+  /**
+   * It returns a function that takes an event and calls the `_cartQuantityChanged` function with the
+   * cart item and the event
+   * @param {CartInterface} cartItem - CartInterface
+   * @returns A function that takes an event as an argument and calls the _cartQuantityChanged method
+   * with the cartItem and event as arguments.
+   */
+  protected _cartQuantityChangedEvent(cartItem: CartInterface): (event: NumberFieldValueChangedEvent) => void {
+    return (event: NumberFieldValueChangedEvent): void => {
+      this._cartQuantityChanged(cartItem, event);
+    };
+  }
+  /**
+   * It returns an object with three properties: subtotal, shipping, and tax
+   * @returns An object with the subtotal, shipping, and tax.
+   */
+  protected get _invoiceDetail(): {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+  } {
+    const subtotal = this._cart
+      .map((cartItem) => cartItem.product.price[this._i18nCode] * cartItem.quantity)
+      .reduce((perv, curr) => perv + curr, 0);
+    const shipping = 10;
+    const tax = (subtotal / 100) * 9;
+
+    return {subtotal, shipping, tax};
+  }
+  /**
+   * It takes the values of the invoiceDetail object and reduces them to a single value
+   * @returns The total of the invoice.
+   */
+  protected get _invoiceTotal(): number {
+    return Object.values(this._invoiceDetail).reduce((perv, curr) => perv + curr, 0);
+  }
 }
