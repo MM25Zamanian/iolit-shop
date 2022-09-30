@@ -6,9 +6,12 @@ import {customElement} from 'lit/decorators/custom-element.js';
 import {property} from 'lit/decorators/property.js';
 import {when} from 'lit/directives/when.js';
 
+import '@vaadin/number-field';
+
 import {AppElement} from '../app-debt/app-element';
 
 import type {ProductInterface} from '../types/product';
+import type {NumberFieldValueChangedEvent} from '@vaadin/number-field';
 import type {TemplateResult, CSSResult} from 'lit';
 
 declare global {
@@ -92,31 +95,107 @@ export class Product extends AppElement {
         margin: 0;
       }
     `,
+    css`
+      ion-item.cart-item {
+        --background: #fff;
+        --padding-start: 8px;
+        --padding-end: 0;
+        --inner-padding-end: 0;
+      }
+      ion-item.cart-item ion-label ion-row.quantity-ctrl {
+        flex-wrap: nowrap;
+        align-items: center;
+        padding-top: 8px;
+      }
+      ion-item.cart-item ion-label ion-row.quantity-ctrl ion-note {
+        text-transform: capitalize;
+        padding: 0 8px 0 0;
+      }
+      ion-item.cart-item ion-row.item-end-inner {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        margin: 0;
+        height: 100%;
+      }
+      ion-item.cart-item ion-row.item-end-inner ion-buttons {
+        margin-inline-start: auto;
+      }
+      ion-item.cart-item ion-row.item-end-inner ion-note {
+        text-align: center;
+        padding-bottom: 12px;
+        padding-inline-end: 6px;
+      }
+    `,
   ];
 
   @property({type: Object}) info?: ProductInterface;
-  @property({reflect: true}) type: 'vertical-card' | 'item-card' = 'vertical-card';
+  @property({type: Number}) quantity?: number;
+  @property({reflect: true}) type: 'vertical-card' | 'item-card' | 'cart-item' = 'vertical-card';
   @property({type: Boolean, reflect: true}) favorite: boolean | 'pending' = false;
 
   protected _toastMessageSignal = new SignalInterface('toast-message');
 
   override render(): TemplateResult {
-    if (!this.info) {
-      return this._renderCardVerticalSkeleton();
+    switch (this.type) {
+      case 'vertical-card':
+        if (this.info) {
+          return this._renderCardVertical(this.info);
+        }
+        return this._renderCardVerticalSkeleton();
+      case 'item-card':
+        if (this.info) {
+          return this._renderCardItem(this.info);
+        }
+        break;
+      case 'cart-item':
+        if (this.info && this.quantity) {
+          return this._renderCartItem(this.info, this.quantity);
+        }
+        break;
     }
-    if (this.type === 'item-card') {
-      return this._renderCardItem(this.info);
-    }
-    return this._renderCardVertical(this.info);
-  }
-  protected override firstUpdated(): void {
-    this._logger.logMethod('firstUpdated');
-
-    setTimeout(() => {
-      this.removeAttribute('unresolved');
-    }, 500);
+    return this._renderCardVerticalSkeleton();
   }
 
+  protected _renderCartItem(product: ProductInterface, quantity: number): TemplateResult {
+    return html`
+      <ion-item
+        href=${router.makeUrl({sectionList: ['products', product._id]})}
+        class="ion-no-margin cart-item"
+        lines="full"
+      >
+        <ion-thumbnail slot="start">
+          <img src=${product.image.normal} alt=${product.name[this._i18nCode]} />
+        </ion-thumbnail>
+        <ion-label>
+          <h3>${product.name[this._i18nCode]}</h3>
+
+          <ion-note class="ion-no-margin" color="secondary">
+            ${product.price[this._i18nCode]} ${this._localize.term('$price_unit')}
+          </ion-note>
+
+          <ion-row class="quantity-ctrl">
+            <ion-note>quantity: </ion-note>
+            <vaadin-number-field
+              value=${quantity}
+              min="1"
+              has-controls
+              @value-changed=${this._quantityChanged}
+            ></vaadin-number-field>
+          </ion-row>
+        </ion-label>
+
+        <ion-row class="item-end-inner" slot="end">
+          <ion-buttons class="ion-no-margin">
+            <ion-button color="danger" @click=${this._productRemove}>
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+          <ion-buttons class="ion-no-margin"> ${this._renderFavoriteButton()} </ion-buttons>
+        </ion-row>
+      </ion-item>
+    `;
+  }
   protected _renderCardVertical(product: ProductInterface): TemplateResult {
     const title = product.name[this._i18nCode];
     const price = this._localize.number(product.price[this._i18nCode]);
@@ -157,8 +236,8 @@ export class Product extends AppElement {
         </ion-thumbnail>
         <ion-label>
           <h3>${title}</h3>
-          <p>${description}</p>
-          <p>${price} ${this._localize.term('$price_unit')}</p>
+          <rp>${description}</rp>
+          <rp>${price} ${this._localize.term('$price_unit')}</rp>
         </ion-label>
         <ion-buttons slot="end"> ${this._renderFavoriteButton()} </ion-buttons>
       </ion-item>
@@ -228,6 +307,17 @@ export class Product extends AppElement {
         const message = new IonicSafeString(this._localize.term('favorite_past', title, this.favorite));
         this._toastMessageSignal.request({message: message.value, icon: 'heart'});
       }
+    }
+  }
+  protected _quantityChanged(event: NumberFieldValueChangedEvent): void {
+    this.dispatchEvent(new CustomEvent<{value: string}>('quantity-changed', event));
+  }
+  protected _productRemove(event: PointerEvent): void {
+    event.preventDefault();
+
+    const pid = this.info?._id;
+    if (pid) {
+      this.dispatchEvent(new CustomEvent<{productId: string}>('product-remove', {detail: {productId: pid}}));
     }
   }
 }

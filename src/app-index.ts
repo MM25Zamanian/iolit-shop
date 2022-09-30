@@ -14,6 +14,8 @@ import fa from './translation/fa';
 import LocaleController from './utilities/locale-controller';
 import registerSW from './utilities/register-sw';
 
+import './utilities/db';
+
 import type {RoutesConfig} from '@alwatr/router';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {TemplateResult, CSSResult} from 'lit';
