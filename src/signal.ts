@@ -16,7 +16,7 @@ declare global {
     };
     readonly 'category-list': Record<string, CategoryInterface>;
     readonly 'page-content': Record<string, PageContent>;
-    readonly 'cart': Record<string, CartInterface>;
+    readonly cart: Record<string, CartInterface>;
     readonly 'toast-message': HTMLIonToastElement;
     readonly 'action-sheet': HTMLIonActionSheetElement;
     readonly 'modal-page': HTMLIonModalElement;
@@ -29,6 +29,6 @@ declare global {
     readonly 'toast-message': ToastOptions;
     readonly 'action-sheet': ActionSheetOptions;
     readonly 'modal-page': ModalOptions<ComponentRef>;
-    readonly 'cart': CartMinimizeInterface;
+    readonly cart: CartMinimizeInterface;
   }
 }
