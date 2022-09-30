@@ -17,6 +17,7 @@ declare global {
     readonly 'category-list': Record<string, CategoryInterface>;
     readonly 'page-content': Record<string, PageContent>;
     readonly cart: Record<string, CartInterface>;
+    readonly 'favorite-product-list': string[];
     readonly 'toast-message': HTMLIonToastElement;
     readonly 'action-sheet': HTMLIonActionSheetElement;
     readonly 'modal-page': HTMLIonModalElement;
@@ -25,10 +26,14 @@ declare global {
     readonly 'product-list': ProductFilter;
     readonly 'category-list': Record<string, never>;
     readonly 'page-content': string;
+    readonly cart: CartMinimizeInterface;
+    readonly 'favorite-product-list': {
+      action: 'get' | 'add' | 'remove';
+      productId?: string;
+    };
 
     readonly 'toast-message': ToastOptions;
     readonly 'action-sheet': ActionSheetOptions;
     readonly 'modal-page': ModalOptions<ComponentRef>;
-    readonly cart: CartMinimizeInterface;
   }
 }

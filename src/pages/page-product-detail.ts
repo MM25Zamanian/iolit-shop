@@ -111,11 +111,12 @@ export class PageProductDetail extends AppElement {
 
   @property() pid?: string;
   @state() protected _product?: ProductInterface;
-  @state() protected _favorite: boolean | 'pending' = false;
+  @state() protected _favorite: boolean | 'pending' = 'pending';
   @state() protected _quantity = 0;
 
   protected _productListSignal = new SignalInterface('product-list');
   protected _toastMessageSignal = new SignalInterface('toast-message');
+  protected _favoriteProductListSignal = new SignalInterface('favorite-product-list');
   protected _cartSignal = new SignalInterface('cart');
 
   override render(): TemplateResult {
@@ -132,6 +133,11 @@ export class PageProductDetail extends AppElement {
     super.requestUpdate(name, oldValue, options);
 
     if (name === 'pid' && this.pid) {
+      this._favoriteProductListSignal.request({action: 'get'}).then((favorites) => {
+        if (this.pid) {
+          this._favorite = favorites.includes(this.pid);
+        }
+      });
       this._productListSignal.request({}).then((products) => {
         if (this.pid) {
           this._product = products.data[this.pid];
@@ -167,13 +173,7 @@ export class PageProductDetail extends AppElement {
           <ion-button @click=${this._shareData}>
             <ion-icon slot="icon-only" name="share-social-outline"></ion-icon>
           </ion-button>
-          <ion-button color=${this._favorite === true ? 'danger' : 'light'} @click=${this._toggleFavorite}>
-            ${when(
-              this._favorite === 'pending',
-              () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
-              () => html` <ion-icon slot="icon-only" name=${this._favorite ? 'heart' : 'heart-outline'}></ion-icon> `
-            )}
-          </ion-button>
+          ${this._renderFavoriteToggle()}
           <ion-button>
             <ion-icon slot="icon-only" name="cart-outline"></ion-icon>
           </ion-button>
@@ -272,6 +272,17 @@ export class PageProductDetail extends AppElement {
       </ion-col>
     `;
   }
+  protected _renderFavoriteToggle(): TemplateResult {
+    return html`
+      <ion-button color=${this._favorite === true ? 'danger' : 'light'} @click=${this._toggleFavorite}>
+        ${when(
+          this._favorite === 'pending',
+          () => html` <ion-spinner slot="icon-only" duration="1000"></ion-spinner> `,
+          () => html` <ion-icon slot="icon-only" name=${this._favorite ? 'heart' : 'heart-outline'}></ion-icon> `
+        )}
+      </ion-button>
+    `;
+  }
 
   protected async _shareData(): Promise<void> {
     const data: ShareData = {
@@ -284,23 +295,19 @@ export class PageProductDetail extends AppElement {
     }
   }
   protected async _toggleFavorite(): Promise<void> {
-    if (this._favorite !== 'pending') {
-      const newValue = !this._favorite;
+    if (this._favorite !== 'pending' && this.pid && this._product) {
+      const favorite = this._favorite;
       this._favorite = 'pending';
 
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 2000);
+      const favoriteProductsId = await this._favoriteProductListSignal.request({
+        action: favorite ? 'remove' : 'add',
+        productId: this.pid,
       });
+      this._favorite = favoriteProductsId.includes(this.pid);
 
-      this._favorite = newValue;
-
-      if (this._product) {
-        const title = this._product.name[this._i18nCode];
-        const message = new IonicSafeString(this._localize.term('favorite_past', title, this._favorite));
-        this._toastMessageSignal.request({message: message.value, icon: 'heart'});
-      }
+      const title = this._product.name[this._i18nCode];
+      const message = new IonicSafeString(this._localize.term('favorite_past', title, this._favorite));
+      this._toastMessageSignal.request({message: message.value, icon: 'heart'});
     }
   }
   protected _cartProductPlus(): number {

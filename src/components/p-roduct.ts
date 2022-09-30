@@ -1,7 +1,7 @@
 import {router} from '@alwatr/router';
 import {SignalInterface} from '@alwatr/signal';
 import {IonicSafeString} from '@ionic/core';
-import {css, html} from 'lit';
+import {css, html, PropertyDeclaration} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 import {property} from 'lit/decorators/property.js';
 import {when} from 'lit/directives/when.js';
@@ -132,9 +132,10 @@ export class Product extends AppElement {
   @property({type: Object}) info?: ProductInterface;
   @property({type: Number}) quantity?: number;
   @property({reflect: true}) type: 'vertical-card' | 'item-card' | 'cart-item' = 'vertical-card';
-  @property({type: Boolean, reflect: true}) favorite: boolean | 'pending' = false;
+  @property({type: Boolean, reflect: true}) favorite: boolean | 'pending' = 'pending';
 
   protected _toastMessageSignal = new SignalInterface('toast-message');
+  protected _favoriteProductListSignal = new SignalInterface('favorite-product-list');
 
   override render(): TemplateResult {
     switch (this.type) {
@@ -155,6 +156,21 @@ export class Product extends AppElement {
         break;
     }
     return this._renderCardVerticalSkeleton();
+  }
+  override requestUpdate(
+    name?: PropertyKey | undefined,
+    oldValue?: unknown,
+    options?: PropertyDeclaration<unknown, unknown> | undefined
+  ): void {
+    super.requestUpdate(name, oldValue, options);
+
+    if (name === 'info' && this.info) {
+      this._favoriteProductListSignal.request({action: 'get'}).then((favorites) => {
+        if (this.info) {
+          this.favorite = favorites.includes(this.info._id);
+        }
+      });
+    }
   }
 
   protected _renderCartItem(product: ProductInterface, quantity: number): TemplateResult {
@@ -290,23 +306,19 @@ export class Product extends AppElement {
   protected async _toggleFavorite(event: PointerEvent): Promise<void> {
     event.preventDefault();
 
-    if (this.favorite !== 'pending') {
-      const newValue = !this.favorite;
+    if (this.favorite !== 'pending' && this.info) {
+      const favorite = this.favorite;
       this.favorite = 'pending';
 
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true);
-        }, 2000);
+      const favoriteProductsId = await this._favoriteProductListSignal.request({
+        action: favorite ? 'remove' : 'add',
+        productId: this.info._id,
       });
+      this.favorite = favoriteProductsId.includes(this.info._id);
 
-      this.favorite = newValue;
-
-      if (this.info) {
-        const title = this.info.name[this._i18nCode];
-        const message = new IonicSafeString(this._localize.term('favorite_past', title, this.favorite));
-        this._toastMessageSignal.request({message: message.value, icon: 'heart'});
-      }
+      const title = this.info.name[this._i18nCode];
+      const message = new IonicSafeString(this._localize.term('favorite_past', title, this.favorite));
+      this._toastMessageSignal.request({message: message.value, icon: 'heart'});
     }
   }
   protected _quantityChanged(event: NumberFieldValueChangedEvent): void {
