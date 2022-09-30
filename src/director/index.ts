@@ -7,3 +7,4 @@ import './providers/modal-page';
 import './providers/product-list';
 import './providers/toast-message';
 import './providers/page-content';
+import './providers/cart';

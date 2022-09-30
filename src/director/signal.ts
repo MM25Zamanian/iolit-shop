@@ -6,3 +6,4 @@ export const pageContentSignal = new SignalInterface('page-content');
 export const toastMessageSignal = new SignalInterface('toast-message');
 export const actionSheetSignal = new SignalInterface('action-sheet');
 export const modalPageSignal = new SignalInterface('modal-page');
+export const cartSignal = new SignalInterface('cart');
