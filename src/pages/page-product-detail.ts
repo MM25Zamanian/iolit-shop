@@ -10,6 +10,7 @@ import {when} from 'lit/directives/when.js';
 
 import {AppElement} from '../app-debt/app-element';
 
+import type {CartInterface} from '../types/cart';
 import type {MultiLanguageStringType} from '../types/language';
 import type {ProductInterface} from '../types/product';
 import type {TemplateResult, CSSResult} from 'lit';
@@ -87,7 +88,7 @@ export class PageProductDetail extends AppElement {
         font-size: 15px;
         font-weight: 900;
       }
-      ion-grid ion-row.product__footer p {
+      ion-grid ion-row.product__footer rp {
         margin: 1vw 4vw 3vw;
         color: var(--ion-color-step-600);
         font-size: 14px;
@@ -115,6 +116,7 @@ export class PageProductDetail extends AppElement {
 
   protected _productListSignal = new SignalInterface('product-list');
   protected _toastMessageSignal = new SignalInterface('toast-message');
+  protected _cartSignal = new SignalInterface('cart');
 
   override render(): TemplateResult {
     return html`
@@ -133,6 +135,17 @@ export class PageProductDetail extends AppElement {
       this._productListSignal.request({}).then((products) => {
         if (this.pid) {
           this._product = products.data[this.pid];
+          this._cartSignal
+            .request({
+              productId: '',
+              quantity: 0,
+            })
+            .then((cart) => {
+              if (this.pid) {
+                this._quantity =
+                  Object.values(cart).find((cartItem) => cartItem.product._id === this.pid)?.quantity ?? 0;
+              }
+            });
           this.requestUpdate('_product');
         }
       });
@@ -232,7 +245,7 @@ export class PageProductDetail extends AppElement {
 
     if (!descriptionText) return nothing;
 
-    const descriptionHtml = descriptionText.split('\n').map((paragraph) => html`<p>${paragraph.trim()}</p>`);
+    const descriptionHtml = descriptionText.split('\n').map((paragraph) => html`<rp>${paragraph.trim()}</rp>`);
 
     return html`
       <ion-col size="12">
@@ -291,12 +304,27 @@ export class PageProductDetail extends AppElement {
     }
   }
   protected _cartProductPlus(): number {
-    return ++this._quantity;
+    this._cartMigrate(++this._quantity);
+
+    return this._quantity;
   }
   protected _cartProductMinus(): number {
-    return --this._quantity;
+    this._cartMigrate(--this._quantity);
+
+    return this._quantity;
   }
   protected _cartProductAdd(): number {
-    return (this._quantity = 1);
+    this._cartMigrate((this._quantity = 1));
+
+    return this._quantity;
+  }
+  protected async _cartMigrate(quantity: number): Promise<Record<string, CartInterface> | undefined> {
+    if (this.pid) {
+      return await this._cartSignal.request({
+        productId: this.pid,
+        quantity: quantity,
+      });
+    }
+    return undefined;
   }
 }
