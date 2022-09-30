@@ -80,6 +80,8 @@ export class PageProductList extends AppElement {
   );
 
   override connectedCallback(): void {
+    super.connectedCallback();
+
     this._listenerList.push(
       router.signal.addListener(
         (route) => {
@@ -91,7 +93,11 @@ export class PageProductList extends AppElement {
       ),
       this._productListSignal.addListener((data) => {
         this._data = data.data;
-        this.renderRoot.querySelector('ion-content')?.scrollToTop(1000);
+
+        const ionContent = this?.renderRoot?.querySelector('ion-content');
+        if (ionContent) {
+          ionContent.scrollToTop(1000);
+        }
       })
     );
     // this._listenerList.push(router.signal.addListener(() => this.requestUpdate()));
