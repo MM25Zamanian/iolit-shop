@@ -8,3 +8,4 @@ import './providers/product-list';
 import './providers/toast-message';
 import './providers/page-content';
 import './providers/cart';
+import './providers/favorite-product-list';
