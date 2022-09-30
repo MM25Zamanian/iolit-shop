@@ -20,12 +20,12 @@ export async function loadDataCaching<ResponseType extends Record<string | numbe
 ): Promise<ResponseType> {
   const fetchedData = getFetchedData<ResponseType>(url);
   if (fetchedData) {
-    getPendingRequest<ResponseType>(url).then(async (pendingRequest) => {
-      if (!pendingRequest) {
-        return await fetchToGetData<ResponseType>(url, queryParameters, options);
-      }
-      return pendingRequest;
-    });
+    // getPendingRequest<ResponseType>(url).then(async (pendingRequest) => {
+    //   if (!pendingRequest) {
+    //     return await fetchToGetData<ResponseType>(url, queryParameters, options);
+    //   }
+    //   return pendingRequest;
+    // });
 
     return fetchedData;
   }
