@@ -1,4 +1,4 @@
-import type {CartInterface} from './types/cart';
+import type {CartInterface, CartMinimizeInterface} from './types/cart';
 import type {CategoryInterface} from './types/category';
 import type {PageContent} from './types/page-content';
 import type {ProductInterface} from './types/product';
@@ -16,7 +16,7 @@ declare global {
     };
     readonly 'category-list': Record<string, CategoryInterface>;
     readonly 'page-content': Record<string, PageContent>;
-    readonly 'cart-change': CartInterface[];
+    readonly 'cart': Record<string, CartInterface>;
     readonly 'toast-message': HTMLIonToastElement;
     readonly 'action-sheet': HTMLIonActionSheetElement;
     readonly 'modal-page': HTMLIonModalElement;
@@ -29,6 +29,6 @@ declare global {
     readonly 'toast-message': ToastOptions;
     readonly 'action-sheet': ActionSheetOptions;
     readonly 'modal-page': ModalOptions<ComponentRef>;
-    readonly 'cart-change': CartInterface[];
+    readonly 'cart': CartMinimizeInterface;
   }
 }
