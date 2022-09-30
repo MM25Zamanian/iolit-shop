@@ -4,7 +4,7 @@ import {notEqual} from 'lit';
 
 import {locales} from '../config';
 
-import type {locale} from '../config';
+import type {locale} from '../types/locales';
 
 /**
  * It updates the language and direction of the HTML element
