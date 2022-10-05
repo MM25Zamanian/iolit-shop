@@ -5,7 +5,8 @@ import {customElement} from 'lit/decorators/custom-element.js';
 import {ifDefined} from 'lit/directives/if-defined.js';
 import {map} from 'lit/directives/map.js';
 
-import {AppElement} from '../app-debt/app-element';
+import {PageElement} from '../app-debt/app-element';
+import {appName} from '../config';
 import {PageContent} from '../types/page-content';
 
 import '../components/b-anner';
@@ -14,8 +15,9 @@ import '../components/p-roduct';
 
 import type {InfoBanner, InfoBannerRowInterface} from '../types/banner';
 import type {ProductInterface} from '../types/product';
+import type {MetaOptions} from '../utilities/html-meta-manager';
 import type {ListenerInterface} from '@alwatr/signal';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -31,9 +33,9 @@ declare global {
  * ```
  */
 @customElement('page-home')
-export class PageHome extends AppElement {
+export class PageHome extends PageElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    PageElement.styles || [],
     css`
       .banners {
         display: flex;
@@ -59,6 +61,10 @@ export class PageHome extends AppElement {
     `,
   ];
 
+  protected override metaData: MetaOptions = {
+    title: appName,
+    titleTemplate: null,
+  };
   protected _listenerList: Array<unknown> = [];
   protected _categoryListSignal = new SignalInterface('category-list');
   protected _productListSignal = new SignalInterface('product-list');
@@ -85,6 +91,7 @@ export class PageHome extends AppElement {
   }
   override render(): TemplateResult {
     return html`
+      <ion-header> ${this._renderToolBarTemplate()} </ion-header>
       <ion-content fullscreen>
         ${this._pageContentTask.render({
           complete: (pageContent) => {
@@ -110,6 +117,17 @@ export class PageHome extends AppElement {
     `;
   }
 
+  protected _renderToolBarTemplate(): TemplateResult {
+    return html`
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button menu="menu-app"></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title>${this.metaData.title ? this.metaData.title[this._i18nCode] : ''}</ion-title>
+      </ion-toolbar>
+    `;
+  }
   protected _renderBannersSkeleton(): TemplateResult {
     return html`
       <div class="banners">

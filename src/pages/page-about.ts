@@ -2,11 +2,12 @@ import {css, html} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
 import {ifDefined} from 'lit/directives/if-defined.js';
 
-import {AppElement} from '../app-debt/app-element';
-import {developerTeam} from '../config';
+import {PageElement} from '../app-debt/app-element';
+import {appName, developerTeam} from '../config';
+import {MetaOptions} from '../utilities/html-meta-manager';
 
 import type {ListenerInterface} from '@alwatr/signal';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -22,9 +23,9 @@ declare global {
  * ```
  */
 @customElement('page-about')
-export class PageAbout extends AppElement {
+export class PageAbout extends PageElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    PageElement.styles || [],
     css`
       ion-avatar {
         background-color: #fff;
@@ -39,6 +40,13 @@ export class PageAbout extends AppElement {
   ];
 
   protected _listenerList: Array<unknown> = [];
+  protected override metaData: MetaOptions = {
+    title: {
+      en: 'Contact Us',
+      fa: '',
+    },
+    titleTemplate: `%s | ${appName[this._i18nCode]}`,
+  };
 
   override connectedCallback(): void {
     super.connectedCallback();
@@ -50,25 +58,22 @@ export class PageAbout extends AppElement {
   }
   override render(): TemplateResult {
     return html`
-      <section>
-        <div class="box">
-          <ion-row>
-            <ion-col class="ion-padding-bottom" size="12">
-              <ion-avatar class="ion-padding">
-                <img src="/images/icon-144x144.png" alt="" />
-              </ion-avatar>
-              <ion-text color="dark">
-                <h1>${this._localize.term('spy_game_web_app')}</h1>
-              </ion-text>
-            </ion-col>
-          </ion-row>
-
-          ${this._renderDeveloperTeamList()}
-        </div>
-      </section>
+      <ion-header> ${this._renderToolbarTemplate()} </ion-header>
+      <ion-content fullscreen> </ion-content>
     `;
   }
 
+  protected _renderToolbarTemplate(): TemplateResult {
+    return html`
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button menu="menu-app"></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title>${this.metaData.title ? this.metaData.title[this._i18nCode] : ''}</ion-title>
+      </ion-toolbar>
+    `;
+  }
   protected _renderDeveloperTeamList(): TemplateResult {
     const developerTeamTemplate = developerTeam.map(
       (developer) => html`

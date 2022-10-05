@@ -9,16 +9,18 @@ import {map} from 'lit/directives/map.js';
 import {range} from 'lit/directives/range.js';
 import {repeat} from 'lit/directives/repeat.js';
 
-import {AppElement} from '../app-debt/app-element';
+import {PageElement} from '../app-debt/app-element';
+import { appName } from '../config';
 
 import '../components/p-roduct';
 import '../components/m-odal-filter';
 import '../components/m-odal-search';
 
 import type {ProductInterface} from '../types/product';
+import type{ MetaOptions } from '../utilities/html-meta-manager';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {InfiniteScrollCustomEvent} from '@ionic/core';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -34,9 +36,9 @@ declare global {
  * ```
  */
 @customElement('page-product-list')
-export class PageProductList extends AppElement {
+export class PageProductList extends PageElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    PageElement.styles || [],
     css`
       :host {
         display: flex;
@@ -64,6 +66,13 @@ export class PageProductList extends AppElement {
   @state() protected _scrollIndex = 6;
   @query('ion-infinite-scroll') protected _infiniteScrollElement?: HTMLIonInfiniteScrollElement;
 
+  protected override metaData: MetaOptions = {
+    title: {
+      en: 'Products',
+      fa: '',
+    },
+    titleTemplate: `%s | ${appName[this._i18nCode]}`,
+  };
   protected _listenerList: Array<unknown> = [];
   protected _productListSignal = new SignalInterface('product-list');
   protected _modalPageSignal = new SignalInterface('modal-page');
@@ -158,6 +167,10 @@ export class PageProductList extends AppElement {
   protected _renderToolbarTemplate(): TemplateResult {
     return html`
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button menu="menu-app"></ion-menu-button>
+        </ion-buttons>
+
         <ion-buttons slot="primary">
           <ion-button @click=${this._openModalFilters}>
             <ion-icon slot="icon-only" name="funnel-outline"></ion-icon>
@@ -170,7 +183,7 @@ export class PageProductList extends AppElement {
           </ion-button>
         </ion-buttons>
 
-        <ion-title>${this._localize.term('products')}</ion-title>
+        <ion-title>${this.metaData.title ? this.metaData.title[this._i18nCode] : ''}</ion-title>
       </ion-toolbar>
     `;
   }
