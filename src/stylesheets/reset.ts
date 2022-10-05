@@ -46,7 +46,7 @@ const reset = css`
   pre,
   samp {
     font-family: monospace, monospace;
-    font-size: 1em;
+    font-size: 1rem;
   }
 
   input,
@@ -189,28 +189,28 @@ const reset = css`
 
   h1 {
     margin-top: 20px;
-    font-size: 26px;
+    font-size: 1.8rem;
   }
 
   h2 {
     margin-top: 18px;
-    font-size: 24px;
+    font-size: 1.6rem;
   }
 
   h3 {
-    font-size: 22px;
+    font-size: 1.4rem;
   }
 
   h4 {
-    font-size: 20px;
+    font-size: 1.3rem;
   }
 
   h5 {
-    font-size: 18px;
+    font-size: 1.2rem;
   }
 
   h6 {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   small {
