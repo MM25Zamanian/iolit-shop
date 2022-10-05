@@ -34,7 +34,7 @@ const routes: Record<string, Route> = {
     icon: 'person',
     render: () => html`<page-home class="ion-page"></page-home>`,
   },
-  contact: {
+  'contact-us': {
     title: 'contact_us',
     icon: 'call',
     render: () => html`<page-about class="ion-page"></page-about>`,
