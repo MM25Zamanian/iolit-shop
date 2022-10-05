@@ -1,3 +1,5 @@
+import type {MultiLanguageStringType} from './types/language';
+
 export type locale = {code: 'fa' | 'en'; dir: 'rtl' | 'ltr'; $code: string};
 
 export const locales: locale[] = [
@@ -12,3 +14,7 @@ export const developerTeam: {name: string; description: string; link?: string; i
     image: '/images/developer_team/mohammadmahdi_zamanian.jpg',
   },
 ];
+export const appName: MultiLanguageStringType = {
+  en: 'IoLit Shop',
+  fa: '',
+};
