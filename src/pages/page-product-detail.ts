@@ -13,12 +13,12 @@ import {AppElement} from '../app-debt/app-element';
 import type {CartInterface} from '../types/cart';
 import type {MultiLanguageStringType} from '../types/language';
 import type {ProductInterface} from '../types/product';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 @customElement('page-product-detail')
 export class PageProductDetail extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
     css`
       :host {
         display: block;
