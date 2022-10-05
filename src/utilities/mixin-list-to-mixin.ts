@@ -9,9 +9,9 @@ type Constructor<ClassType> = new (...args: any[]) => ClassType;
 
 type BaseElement = LocalizableMixinInterface | LoggableMixinInterface | SeoMixinInterface | LitElement;
 type BaseElementCallback = Constructor<LocalizableMixinInterface> &
-Constructor<LoggableMixinInterface> &
-Constructor<SeoMixinInterface> &
-typeof LitElement;
+  Constructor<LoggableMixinInterface> &
+  Constructor<SeoMixinInterface> &
+  typeof LitElement;
 
 export default function mixinListToMixin(
   mixinList: (<ClassType extends Constructor<LitElement>>(

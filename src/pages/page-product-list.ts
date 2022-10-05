@@ -10,14 +10,14 @@ import {range} from 'lit/directives/range.js';
 import {repeat} from 'lit/directives/repeat.js';
 
 import {PageElement} from '../app-debt/app-element';
-import { appName } from '../config';
+import {appName} from '../config';
 
 import '../components/p-roduct';
 import '../components/m-odal-filter';
 import '../components/m-odal-search';
 
 import type {ProductInterface} from '../types/product';
-import type{ MetaOptions } from '../utilities/html-meta-manager';
+import type {MetaOptions} from '../utilities/html-meta-manager';
 import type {ListenerInterface} from '@alwatr/signal';
 import type {InfiniteScrollCustomEvent} from '@ionic/core';
 import type {TemplateResult} from 'lit';
