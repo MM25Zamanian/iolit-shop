@@ -1951,10 +1951,10 @@
     npmlog "^6.0.2"
     write-file-atomic "^4.0.1"
 
-"@lit-labs/task@^1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@lit-labs/task/-/task-1.1.3.tgz#1215ae8ca746ecc895813463b81b2ce4b823098a"
-  integrity sha512-Ta5rdbmuDaYAZwlkjezCoqcnn+J54XBAGI0X4PsCjycY1nJ/Ntbd+YY/eMdfnu777qrvznuqanTa4r1ptPXXxA==
+"@lit-labs/task@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@lit-labs/task/-/task-2.0.0.tgz#0d74491e0b79769bf81e637466b67ad2dc8a70ab"
+  integrity sha512-r567PcR6Koq7DoBwdnMWxyO3Ww9BkJshGmuviwhCcNRATSgDx/O6SEZ95oBfgxN6hKyoYT3lbtRzMPKhKRHUow==
   dependencies:
     "@lit/reactive-element" "^1.1.0"
 
