@@ -1,5 +1,3 @@
-export type locale = {code: 'fa' | 'en'; dir: 'rtl' | 'ltr'; $code: string};
-
 export const locales: locale[] = [
   {code: 'en', dir: 'ltr', $code: 'English'},
   {code: 'fa', dir: 'rtl', $code: 'فارسی'},
