@@ -36,7 +36,6 @@
     "@alwatr/signal": "^0.16.0",
     "@capacitor/android": "^4.3.0",
     "@capacitor/core": "^4.3.0",
-    "@erbium/iconsax": "^0.1.0",
     "@ionic/core": "^6.3.0",
     "@lit-labs/task": "^1.1.3",
     "@shoelace-style/localize": "^3.0.0",
