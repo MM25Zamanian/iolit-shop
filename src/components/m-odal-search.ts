@@ -12,7 +12,7 @@ import {ProductInterface} from '../types/product';
 import '../components/p-roduct';
 
 import type {SearchbarCustomEvent} from '@ionic/core';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -23,7 +23,7 @@ declare global {
 @customElement('m-odal-search')
 export class MOdalSearch extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
 
     css`
       :host {

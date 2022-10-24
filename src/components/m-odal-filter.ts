@@ -10,7 +10,7 @@ import {AppElement} from '../app-debt/app-element';
 import type {CategoryInterface} from '../types/category';
 import type {ProductFilter} from '../types/product-filter';
 import type {RadioGroupCustomEvent} from '@ionic/core';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -21,7 +21,7 @@ declare global {
 @customElement('m-odal-filter')
 export class MOdalFilter extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
 
     css`
       :host {

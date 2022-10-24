@@ -4,7 +4,7 @@ import {customElement} from 'lit/decorators/custom-element.js';
 
 import {AppElement} from '../app-debt/app-element';
 
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -15,7 +15,7 @@ declare global {
 @customElement('s-croller')
 export class Scroller extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
     css`
       :host {
         display: block;

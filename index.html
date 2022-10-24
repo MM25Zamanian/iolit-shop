@@ -11,16 +11,10 @@
 
     <base href="/" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://polyfill.io/" crossorigin />
     <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link
-      rel="preload"
-      href="https://fonts.gstatic.com/s/notosansarabic/v14/nwpCtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlj4wv4rqxzLI.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
 
     <link rel="icon" href="images/icon-192x192.png" />
     <meta name="theme-color" content="#4c00b8" />
@@ -49,7 +43,11 @@
   </head>
   <body>
     <ion-app>
-      <app-index></app-index>
+      <ion-menu content-id="index" menu-id="menu-app">
+        <d-rawer></d-rawer>
+      </ion-menu>
+
+      <app-index id="index"></app-index>
     </ion-app>
 
     <script>

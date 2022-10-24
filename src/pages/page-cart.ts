@@ -7,13 +7,15 @@ import {repeat} from 'lit/directives/repeat.js';
 
 import '@vaadin/number-field';
 
-import {AppElement} from '../app-debt/app-element';
+import {PageElement} from '../app-debt/app-element';
+import {appName} from '../config';
 
 import '../components/p-roduct';
 
 import type {CartInterface} from '../types/cart';
+import type {MetaOptions} from '../utilities/html-meta-manager';
 import type {NumberFieldValueChangedEvent} from '@vaadin/number-field';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -29,9 +31,9 @@ declare global {
  * ```
  */
 @customElement('page-cart')
-export class PageCart extends AppElement {
+export class PageCart extends PageElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    PageElement.styles || [],
     css`
       ion-item {
         --background: #fff;
@@ -65,6 +67,13 @@ export class PageCart extends AppElement {
 
   @state() protected _cart: CartInterface[] = [];
 
+  protected override metaData: MetaOptions = {
+    title: {
+      en: 'Cart',
+      fa: '',
+    },
+    titleTemplate: `%s | ${appName[this._i18nCode]}`,
+  };
   protected _listenerList: Array<unknown> = [];
   protected _cartInvoidDetailObject: Record<string, () => string> = {
     Subtotal: () => this._invoiceDetail.subtotal.toFixed(2),
@@ -86,10 +95,22 @@ export class PageCart extends AppElement {
 
   override render(): TemplateResult {
     return html`
+      <ion-header> ${this._renderToolbarTemplate()} </ion-header>
       <ion-content fullscreen> ${this._renderCartItemListTemplate()} ${this._renderCartInvoiceTemplate()} </ion-content>
     `;
   }
 
+  protected _renderToolbarTemplate(): TemplateResult {
+    return html`
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button menu="menu-app"></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title>${this.metaData.title ? this.metaData.title[this._i18nCode] : ''}</ion-title>
+      </ion-toolbar>
+    `;
+  }
   protected _renderCartItemListTemplate(): TemplateResult {
     const cartItemListTemplate = repeat(
       this._cart,
@@ -136,6 +157,10 @@ export class PageCart extends AppElement {
     `;
   }
 
+  /**
+   * It runs the `_cartTask` task with the product ID and quantity of zero
+   * @param event - CustomEvent<{productId: string}>
+   */
   protected _cartDelProduct(event: CustomEvent<{productId: string}>): void {
     this._cartTask.run([event.detail.productId, 0]);
   }

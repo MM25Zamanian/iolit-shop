@@ -12,7 +12,7 @@ import {AppElement} from '../app-debt/app-element';
 
 import type {ProductInterface} from '../types/product';
 import type {NumberFieldValueChangedEvent} from '@vaadin/number-field';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -28,7 +28,7 @@ declare global {
 @customElement('p-roduct')
 export class Product extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
     css`
       :host {
         display: block;

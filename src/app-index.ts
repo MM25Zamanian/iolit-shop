@@ -1,10 +1,8 @@
 import {router} from '@alwatr/router';
 import {SignalInterface} from '@alwatr/signal';
 import {registerTranslation} from '@shoelace-style/localize/dist/index.js';
-import {css, html, nothing} from 'lit';
+import {css, html} from 'lit';
 import {customElement} from 'lit/decorators/custom-element.js';
-import {ifDefined} from 'lit/directives/if-defined.js';
-import {when} from 'lit/directives/when.js';
 
 import {AppElement} from './app-debt/app-element';
 import {loadData} from './director';
@@ -14,11 +12,11 @@ import fa from './translation/fa';
 import LocaleController from './utilities/locale-controller';
 import registerSW from './utilities/register-sw';
 
-import './utilities/db';
+import './components/d-rawer';
 
 import type {RoutesConfig} from '@alwatr/router';
 import type {ListenerInterface} from '@alwatr/signal';
-import type {TemplateResult, CSSResult} from 'lit';
+import type {TemplateResult} from 'lit';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -36,7 +34,7 @@ declare global {
 @customElement('app-index')
 export class AppIndex extends AppElement {
   static override styles = [
-    ...(<CSSResult[]>AppElement.styles),
+    AppElement.styles || [],
     css`
       :host {
         inset: 0;
@@ -106,7 +104,6 @@ export class AppIndex extends AppElement {
   protected _cartProductCount = 0;
   protected _activePage = 'home';
   protected _listenerList: Array<unknown> = [];
-  protected _hideTabBar = false;
 
   protected _routes: RoutesConfig = {
     // TODO: refactor route, we need to get active page!
@@ -138,42 +135,6 @@ export class AppIndex extends AppElement {
     this._listenerList.forEach((listener) => (listener as ListenerInterface<keyof AlwatrSignals>).remove());
   }
   override render(): TemplateResult {
-    return html`
-      <ion-content class="page-container"> ${router.outlet(this._routes)} </ion-content>
-      ${this._renderTabBar()}
-    `;
-  }
-
-  protected _renderTabBar(): TemplateResult | typeof nothing {
-    if (this._hideTabBar) return nothing;
-
-    const navItemsTemplate = [];
-
-    for (const slug in routes) {
-      if (Object.prototype.hasOwnProperty.call(routes, slug)) {
-        const route = routes[slug];
-        const selected = this._activePage === slug;
-
-        if (route.show_in_bar !== false) {
-          navItemsTemplate.push(
-            html`
-              <ion-tab-button
-                layout=${selected ? 'icon-top' : 'label-hide'}
-                href=${router.makeUrl({sectionList: [slug]})}
-                ?selected=${selected}
-              >
-                <ion-label>${this._localize.term(route.title)}</ion-label>
-                ${when(
-                  route.icon,
-                  () => html`<ion-icon name=${ifDefined(selected ? route.icon : route.icon + '-outline')}></ion-icon>`
-                )}
-              </ion-tab-button>
-            `
-          );
-        }
-      }
-    }
-
-    return html`<ion-tab-bar>${navItemsTemplate}</ion-tab-bar>`;
+    return html` <ion-content class="page-container"> ${router.outlet(this._routes)} </ion-content> `;
   }
 }
